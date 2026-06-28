@@ -1,6 +1,8 @@
 package com.example.uhf.fragment;
 
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -62,9 +64,21 @@ public class DashboardFragment extends KeyDwonFragment {
         return "";
     }
 
-    // ==================== Password Dialog ====================
+    // ==================== Password Management ====================
 
-    private static final String ADMIN_PASSWORD = "aaa";
+    private static final String PREFS_NAME = "app_prefs";
+    private static final String KEY_ADMIN_PASSWORD = "admin_password";
+    private static final String DEFAULT_PASSWORD = "aaa";
+
+    public static String getAdminPassword(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getString(KEY_ADMIN_PASSWORD, DEFAULT_PASSWORD);
+    }
+
+    public static void setAdminPassword(Context context, String newPassword) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putString(KEY_ADMIN_PASSWORD, newPassword).apply();
+    }
 
     private void showPasswordDialog(String featureLabel, Class<?> targetFragment) {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
@@ -91,7 +105,7 @@ public class DashboardFragment extends KeyDwonFragment {
         dialog.setOnShowListener(d -> {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
                 String input = etPassword.getText().toString().trim();
-                if (ADMIN_PASSWORD.equals(input)) {
+                if (getAdminPassword(mContext).equals(input)) {
                     dialog.dismiss();
                     mContext.openFeature(targetFragment, featureLabel);
                 } else {

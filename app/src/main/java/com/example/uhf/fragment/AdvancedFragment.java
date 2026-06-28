@@ -3,12 +3,15 @@ package com.example.uhf.fragment;
 import android.app.AlertDialog;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,9 +51,12 @@ public class AdvancedFragment extends KeyDwonFragment {
         gvAdvanced.setAdapter(adapter);
         gvAdvanced.setOnItemClickListener((parent, view, position, id) -> {
             DashboardFragment.MenuItem item = menuItems.get(position);
-            if (item.fragmentClass == null) {
+            if (item.fragmentClass == null && "清除数据库".equals(item.label)) {
                 // "清除数据库" entry - show confirmation dialog
                 showClearDatabaseDialog();
+            } else if (item.fragmentClass == null && "更改密码".equals(item.label)) {
+                // "更改密码" entry - show change password dialog
+                showChangePasswordDialog();
             } else {
                 mContext.openFeature(item.fragmentClass, item.label);
             }
@@ -90,6 +96,8 @@ public class AdvancedFragment extends KeyDwonFragment {
                 com.example.uhf.fragment.UHFUpgradeFragment.class));
         // Clear database (special handling)
         menuItems.add(new DashboardFragment.MenuItem("🗄️", "清除数据库", 0xFFD32F2F, null));
+        // Change password (special handling)
+        menuItems.add(new DashboardFragment.MenuItem("🔑", "更改密码", 0xFF607D8B, null));
     }
 
     @Override
@@ -109,6 +117,76 @@ public class AdvancedFragment extends KeyDwonFragment {
                 })
                 .setNegativeButton("取消", null)
                 .show();
+    }
+
+    // ==================== Change Password Dialog ====================
+
+    private void showChangePasswordDialog() {
+        LinearLayout wrapper = new LinearLayout(mContext);
+        wrapper.setOrientation(LinearLayout.VERTICAL);
+        wrapper.setPadding(48, 16, 48, 0);
+
+        final EditText etOldPassword = new EditText(mContext);
+        etOldPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        etOldPassword.setHint("请输入旧密码");
+        etOldPassword.setSingleLine(true);
+        wrapper.addView(etOldPassword);
+
+        final EditText etNewPassword = new EditText(mContext);
+        etNewPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        etNewPassword.setHint("请输入新密码");
+        etNewPassword.setSingleLine(true);
+        LinearLayout.LayoutParams mtParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mtParams.topMargin = 16;
+        wrapper.addView(etNewPassword, mtParams);
+
+        final EditText etConfirmPassword = new EditText(mContext);
+        etConfirmPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        etConfirmPassword.setHint("请再次输入新密码");
+        etConfirmPassword.setSingleLine(true);
+        LinearLayout.LayoutParams mtParams2 = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mtParams2.topMargin = 16;
+        wrapper.addView(etConfirmPassword, mtParams2);
+
+        AlertDialog dialog = new AlertDialog.Builder(mContext)
+                .setTitle("更改管理员密码")
+                .setView(wrapper)
+                .setPositiveButton("确定", null)
+                .setNegativeButton("取消", (d, w) -> d.dismiss())
+                .create();
+        dialog.setCanceledOnTouchOutside(false);
+
+        dialog.setOnShowListener(d -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                String oldPwd = etOldPassword.getText().toString().trim();
+                String newPwd = etNewPassword.getText().toString().trim();
+                String confirmPwd = etConfirmPassword.getText().toString().trim();
+
+                String currentPwd = DashboardFragment.getAdminPassword(mContext);
+                if (!currentPwd.equals(oldPwd)) {
+                    Toast.makeText(mContext, "旧密码错误", Toast.LENGTH_SHORT).show();
+                    etOldPassword.setText("");
+                    return;
+                }
+                if (newPwd.isEmpty()) {
+                    Toast.makeText(mContext, "新密码不能为空", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!newPwd.equals(confirmPwd)) {
+                    Toast.makeText(mContext, "两次输入的新密码不一致", Toast.LENGTH_SHORT).show();
+                    etConfirmPassword.setText("");
+                    return;
+                }
+
+                DashboardFragment.setAdminPassword(mContext, newPwd);
+                Toast.makeText(mContext, "密码已更改", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            });
+        });
+
+        dialog.show();
     }
 
     // ==================== Adapter ====================
