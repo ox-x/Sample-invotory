@@ -160,10 +160,20 @@ public class UHFMainActivity extends BaseTabFragmentActivity {
      */
     public void openItemDetail(String epc, boolean fromStockIn) {
         ItemDetailFragment fragment = ItemDetailFragment.newInstance(epc, fromStockIn);
-        fm.beginTransaction()
-                .replace(R.id.fragment_container, fragment, "item_detail")
-                .addToBackStack(null)
-                .commit();
+        try {
+            fm.beginTransaction()
+                    .setCustomAnimations(
+                            R.anim.slide_right_in,   // detail slides in from right
+                            R.anim.slide_left_out,   // current slides out to left
+                            R.anim.slide_left_in,    // previous slides in from left (back)
+                            R.anim.slide_right_out   // detail slides out to right (back)
+                    )
+                    .replace(R.id.fragment_container, fragment, "item_detail")
+                    .addToBackStack(null)
+                    .commit();
+        } catch (Exception e) {
+            Log.e(TAG, "Error opening item detail", e);
+        }
     }
 
     @Override

@@ -132,6 +132,8 @@
         android:id="@+id/btnWhExport"
         android:layout_width="match_parent"
         android:layout_height="40dp"
+        android:layout_marginStart="@dimen/sp_lg"
+        android:layout_marginEnd="@dimen/sp_lg"
         android:layout_marginBottom="@dimen/sp_sm"
         android:background="@drawable/bg_btn_warehouse_primary"
         android:text="@string/wh_export"
@@ -153,7 +155,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="@dimen/sp_sm">
+            android:padding="@dimen/sp_lg">
 
             <Button
                 android:id="@+id/btnWhFilterAll"
