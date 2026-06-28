@@ -1363,6 +1363,7 @@
     <string name="warehouse_box_desc">描述: %s</string>
     <string name="warehouse_delete_box_confirm">删除此箱及其所有物品?</string>
     <string name="warehouse_delete_contentconfirm">删除此项?</string>
+    <string name="warehouse_delete_content_confirm">删除此项?</string>
     <string name="warehouse_deleted">删除成功</string>
     <string name="warehouse_no_boxes">仓库中没有箱子</string>
     <string name="warehouse_refresh">刷新</string>
@@ -1435,7 +1436,7 @@
 
     <!-- Refactored Borrow/Return UI -->
     <string name="br_scan_item">扫描物品</string>
-    <string name="br_continuous_scan">循环</string>
+    <string name="br_continuous_scan">循环扫描</string>
     <string name="br_stop_scan">停止</string>
     <string name="br_filter_all">全部</string>
     <string name="br_filter_in_stock">在库</string>
@@ -1458,5 +1459,8 @@
     <string name="br_scan_status_ready">就绪，等待扫描</string>
     <string name="br_scan_status_scanning">扫描中...</string>
     <string name="br_items_summary">已盘点 %1$d/%2$d</string>
+
+    <!-- Dashboard 主界面 -->
+    <string name="tab_advanced">高级选项</string>
 
 </resources>

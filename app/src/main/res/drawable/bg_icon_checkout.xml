@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    借还图标 - 毛玻璃质感背景
+    使用 layer-list 叠加：阴影基底 + 半透明白色玻璃层 + 主题色微染 + 高光反射
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 阴影层：右下偏移营造浮起感 -->
+    <item
+        android:left="0dp"
+        android:top="2dp"
+        android:right="2dp"
+        android:bottom="0dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#26000000" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+    <!-- 毛玻璃基底：半透明白色（卡片浅色背景可隐约透出） -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#B3FFFFFF" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+    <!-- 主题色微染：极低透明度橙色，与借还卡片呼应 -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#1AE65100" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+    <!-- 玻璃高光反射：左上至右下渐变，模拟磨砂玻璃折射 -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#99FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:angle="135" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+</layer-list>

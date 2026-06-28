@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#FFFFFF"
+    android:layout_marginBottom="@dimen/sp_md"
+    android:background="@drawable/bg_item_rounded"
     android:orientation="vertical"
     android:padding="8dp">
 
@@ -47,7 +48,7 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Row 2: Info + Action button -->
+    <!-- Row 2: Info + Action button + Expand arrow -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -80,12 +81,14 @@
             android:text="借"
             android:textColor="@color/white"
             android:textSize="13sp" />
-    </LinearLayout>
 
-    <!-- Hidden indicator for expand state (used by code) -->
-    <TextView
-        android:id="@+id/tvGroupIndicator"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone" />
+        <!-- Expand/collapse arrow indicator for grouped items -->
+        <ImageView
+            android:id="@+id/ivGroupArrow"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="4dp"
+            android:src="@drawable/ic_arrow_drop_down"
+            android:visibility="gone" />
+    </LinearLayout>
 </LinearLayout>

@@ -12,7 +12,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.provider.Settings;
+import android.graphics.Color;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -71,6 +73,8 @@ public class UHFMainActivity extends BaseTabFragmentActivity {
         if (getActionBar() != null) {
             getActionBar().hide();
         }
+        // Make the status bar transparent (colorless)
+        setupTransparentStatusBar();
         checkReadWritePermission();
         initSound();
         initUHF();
@@ -82,12 +86,44 @@ public class UHFMainActivity extends BaseTabFragmentActivity {
         }
     }
 
+    // ==================== Status Bar ====================
+
+    /**
+     * Make the status bar transparent (colorless) so the page background
+     * is visible behind the system icons (time, battery, etc.).
+     * On API 30+ the content draws behind the status bar for a seamless look.
+     */
+    private void setupTransparentStatusBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            getWindow().setDecorFitsSystemWindows(false);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            );
+        }
+        // Use dark status bar icons since the page background is light
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int visibility = getWindow().getDecorView().getSystemUiVisibility();
+            visibility |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            getWindow().getDecorView().setSystemUiVisibility(visibility);
+        }
+    }
+
     // ==================== Navigation ====================
 
     public void showDashboard() {
         isDashboardShowing = true;
         DashboardFragment dashboard = new DashboardFragment();
         fm.beginTransaction()
+                .setCustomAnimations(
+                        R.anim.slide_left_in,    // dashboard slides in from left
+                        R.anim.slide_right_out,  // feature slides out to right
+                        0,
+                        0
+                )
                 .replace(R.id.fragment_container, dashboard, "dashboard")
                 .commit();
     }
@@ -97,6 +133,12 @@ public class UHFMainActivity extends BaseTabFragmentActivity {
             Fragment fragment = (Fragment) fragmentClass.newInstance();
             isDashboardShowing = false;
             fm.beginTransaction()
+                    .setCustomAnimations(
+                            R.anim.slide_right_in,  // feature slides in from right
+                            R.anim.slide_left_out,  // dashboard slides out to left
+                            0,
+                            0
+                    )
                     .replace(R.id.fragment_container, fragment, "feature")
                     .addToBackStack(null)
                     .commit();

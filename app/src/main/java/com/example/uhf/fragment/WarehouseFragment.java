@@ -10,11 +10,11 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -74,10 +74,10 @@ public class WarehouseFragment extends KeyDwonFragment {
     // Export
     private Button btnWhExport;
 
-    // List view
-    private ScrollView svListView;
+    // List view (ExpandableListView)
+    private ExpandableListView elvWhList;
     private TextView tvEmpty;
-    private LinearLayout llItemList;
+    private WarehouseListAdapter listAdapter;
 
     // Grid view
     private RecyclerView rvGridView;
@@ -156,9 +156,12 @@ public class WarehouseFragment extends KeyDwonFragment {
         btnWhExport.setOnClickListener(vv -> exportWarehouseData());
 
         // List view
-        svListView = v.findViewById(R.id.svWhListView);
+        elvWhList = v.findViewById(R.id.elvWhList);
         tvEmpty = v.findViewById(R.id.tvWhEmpty);
-        llItemList = v.findViewById(R.id.llWhItemList);
+        listAdapter = new WarehouseListAdapter();
+        elvWhList.setAdapter(listAdapter);
+        // Always consume default group click — we handle it manually in getGroupView
+        elvWhList.setOnGroupClickListener((parent, view, groupPosition, id) -> true);
 
         // Grid view
         rvGridView = v.findViewById(R.id.rvWhGridView);
@@ -174,13 +177,15 @@ public class WarehouseFragment extends KeyDwonFragment {
     private void toggleViewMode() {
         isGridViewMode = !isGridViewMode;
         if (isGridViewMode) {
-            svListView.setVisibility(View.GONE);
+            elvWhList.setVisibility(View.GONE);
+            tvEmpty.setVisibility(View.GONE);
             rvGridView.setVisibility(View.VISIBLE);
             btnViewToggle.setText(R.string.wh_view_list);
             renderGrid();
         } else {
             rvGridView.setVisibility(View.GONE);
-            svListView.setVisibility(View.VISIBLE);
+            tvGridEmpty.setVisibility(View.GONE);
+            elvWhList.setVisibility(View.VISIBLE);
             btnViewToggle.setText(R.string.wh_view_grid);
             renderList();
         }
@@ -252,7 +257,7 @@ public class WarehouseFragment extends KeyDwonFragment {
         currentFilter = filter;
         Button[] btns = {btnFilterAll, btnFilterInStock, btnFilterBorrowed};
         for (int i = 0; i < btns.length; i++) {
-            btns[i].setBackgroundResource(i == filter ? R.drawable.button_bg : R.drawable.button_bg_gray);
+            btns[i].setBackgroundResource(i == filter ? R.drawable.bg_btn_warehouse_primary : R.drawable.bg_btn_warehouse_gray);
         }
         applyFilter();
     }
@@ -475,35 +480,83 @@ public class WarehouseFragment extends KeyDwonFragment {
         mContext.showToast(getString(R.string.wh_export_success, fileName));
     }
 
-    // ==================== List View Rendering ====================
+    // ==================== List View (ExpandableListView) ====================
 
     private void renderList() {
-        llItemList.removeAllViews();
-
         if (filteredGroups.isEmpty()) {
+            elvWhList.setVisibility(View.GONE);
             tvEmpty.setVisibility(View.VISIBLE);
-            llItemList.setVisibility(View.GONE);
-            return;
+        } else {
+            tvEmpty.setVisibility(View.GONE);
+            elvWhList.setVisibility(View.VISIBLE);
+        }
+        listAdapter.notifyDataSetChanged();
+    }
+
+    private class WarehouseListAdapter extends BaseExpandableListAdapter {
+        @Override
+        public int getGroupCount() { return filteredGroups.size(); }
+
+        @Override
+        public int getChildrenCount(int gp) {
+            DisplayItem g = filteredGroups.get(gp);
+            return g.type == DisplayItem.TYPE_BOX
+                    ? filteredChildren.getOrDefault(g.epc, new ArrayList<>()).size()
+                    : 0;
         }
 
-        tvEmpty.setVisibility(View.GONE);
-        llItemList.setVisibility(View.VISIBLE);
+        @Override
+        public DisplayItem getGroup(int gp) { return filteredGroups.get(gp); }
 
-        LayoutInflater inflater = LayoutInflater.from(mContext);
+        @Override
+        public DisplayItem getChild(int gp, int cp) {
+            return filteredChildren.getOrDefault(
+                    filteredGroups.get(gp).epc, new ArrayList<>()).get(cp);
+        }
 
-        for (DisplayItem group : filteredGroups) {
-            View groupView = inflater.inflate(R.layout.item_br_group, llItemList, false);
-            bindGroupView(groupView, group);
-            llItemList.addView(groupView);
+        @Override public long getGroupId(int gp) { return gp; }
+        @Override public long getChildId(int gp, int cp) { return cp; }
+        @Override public boolean hasStableIds() { return false; }
+        @Override public boolean isChildSelectable(int gp, int cp) { return true; }
 
-            if (group.type == DisplayItem.TYPE_BOX) {
-                List<DisplayItem> children = filteredChildren.getOrDefault(group.epc, new ArrayList<>());
-                for (DisplayItem child : children) {
-                    View childView = inflater.inflate(R.layout.item_br_child, llItemList, false);
-                    bindChildView(childView, child);
-                    llItemList.addView(childView);
-                }
+        @Override
+        public View getGroupView(int gp, boolean isExpanded, View cv, ViewGroup parent) {
+            if (cv == null) {
+                cv = LayoutInflater.from(mContext).inflate(R.layout.item_br_group, parent, false);
             }
+            final DisplayItem item = getGroup(gp);
+            bindGroupView(cv, item);
+
+            // Update expand/collapse arrow
+            ImageView ivArrow = cv.findViewById(R.id.ivGroupArrow);
+            if (item.type == DisplayItem.TYPE_BOX) {
+                ivArrow.setVisibility(View.VISIBLE);
+                ivArrow.setRotation(isExpanded ? 180f : 0f);
+            } else {
+                ivArrow.setVisibility(View.GONE);
+            }
+
+            // Click on the group item background (blank area): toggle expand/collapse for BOX, no-op for standalone
+            cv.setOnClickListener(v -> {
+                if (item.type == DisplayItem.TYPE_BOX) {
+                    if (elvWhList.isGroupExpanded(gp)) {
+                        elvWhList.collapseGroup(gp);
+                    } else {
+                        elvWhList.expandGroup(gp);
+                    }
+                }
+            });
+
+            return cv;
+        }
+
+        @Override
+        public View getChildView(int gp, int cp, boolean isLast, View cv, ViewGroup parent) {
+            if (cv == null) {
+                cv = LayoutInflater.from(mContext).inflate(R.layout.item_br_child, parent, false);
+            }
+            bindChildView(cv, getChild(gp, cp));
+            return cv;
         }
     }
 
@@ -535,10 +588,6 @@ public class WarehouseFragment extends KeyDwonFragment {
             int childCount = filteredChildren.getOrDefault(item.epc, new ArrayList<>()).size();
             tvInfo.setText("TID: " + truncateEpc(item.epc)
                     + "  |  " + getString(R.string.warehouse_contents_count, childCount));
-            view.setOnLongClickListener(v -> {
-                confirmDeleteBox(item);
-                return true;
-            });
         } else {
             tvInfo.setText("TID: " + truncateEpc(item.epc));
         }

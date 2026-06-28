@@ -354,7 +354,7 @@ public class CheckoutFragment extends KeyDwonFragment {
     private void restoreCheckoutState() {
         // Restore filter button colors
         Button[] btns = {btnFilterAll, btnFilterInStock, btnFilterBorrowed, btnFilterAudited, btnFilterNotAudited};
-        for (int i = 0; i < btns.length; i++) btns[i].setBackgroundColor(i == currentFilter ? 0xFF3F51B5 : 0xFF9E9E9E);
+        for (int i = 0; i < btns.length; i++) btns[i].setBackgroundResource(i == currentFilter ? R.drawable.bg_btn_checkout_primary : R.drawable.bg_btn_checkout_gray);
         // Refresh filtered lists and summary
         applyFilter();
         // Restore confirm bar visibility and content
@@ -364,7 +364,7 @@ public class CheckoutFragment extends KeyDwonFragment {
     private void setFilter(int filter) {
         currentFilter = filter;
         Button[] btns = {btnFilterAll, btnFilterInStock, btnFilterBorrowed, btnFilterAudited, btnFilterNotAudited};
-        for (int i = 0; i < btns.length; i++) btns[i].setBackgroundColor(i == filter ? 0xFF3F51B5 : 0xFF9E9E9E);
+        for (int i = 0; i < btns.length; i++) btns[i].setBackgroundResource(i == filter ? R.drawable.bg_btn_checkout_primary : R.drawable.bg_btn_checkout_gray);
         applyFilter();
     }
 
@@ -469,8 +469,8 @@ public class CheckoutFragment extends KeyDwonFragment {
             }
             sb.append("  ").append(getString(R.string.br_filter_audited));
             tvPendingCount.setText(sb.toString());
-            // Confirm button color: orange-red if any borrow, green if only returns
-            btnConfirmAction.setBackgroundColor(borrowCount > 0 ? 0xFFFF5722 : 0xFF4CAF50);
+            // Confirm button uses theme orange color (set via XML background)
+            // (The dynamic borrow/return color override has been removed for visual consistency)
         }
     }
 
@@ -543,7 +543,7 @@ public class CheckoutFragment extends KeyDwonFragment {
         // 重置筛选到全部
         currentFilter = FILTER_ALL;
         Button[] btns = {btnFilterAll, btnFilterInStock, btnFilterBorrowed, btnFilterAudited, btnFilterNotAudited};
-        for (int i = 0; i < btns.length; i++) btns[i].setBackgroundColor(i == FILTER_ALL ? 0xFF3F51B5 : 0xFF9E9E9E);
+        for (int i = 0; i < btns.length; i++) btns[i].setBackgroundResource(i == FILTER_ALL ? R.drawable.bg_btn_checkout_primary : R.drawable.bg_btn_checkout_gray);
 
         updatePendingBar();
         applyFilter();
@@ -572,7 +572,7 @@ public class CheckoutFragment extends KeyDwonFragment {
         // 3. 重置筛选器到"全部"
         currentFilter = FILTER_ALL;
         Button[] btns = {btnFilterAll, btnFilterInStock, btnFilterBorrowed, btnFilterAudited, btnFilterNotAudited};
-        for (int i = 0; i < btns.length; i++) btns[i].setBackgroundColor(i == FILTER_ALL ? 0xFF3F51B5 : 0xFF9E9E9E);
+        for (int i = 0; i < btns.length; i++) btns[i].setBackgroundResource(i == FILTER_ALL ? R.drawable.bg_btn_checkout_primary : R.drawable.bg_btn_checkout_gray);
 
         // 4. 清空已确认的学生ID
         confirmedStudentId = "";
@@ -753,12 +753,12 @@ public class CheckoutFragment extends KeyDwonFragment {
                 h.btnAction.setEnabled(true);
                 boolean willBorrow = "IN_STOCK".equals(item.borrowStatus);
                 h.btnAction.setText(willBorrow ? "借" : "还");
-                h.btnAction.setBackgroundColor(willBorrow ? 0xFFFF5722 : 0xFF4CAF50);
+                h.btnAction.setBackgroundResource(willBorrow ? R.drawable.bg_btn_action_borrow : R.drawable.bg_btn_action_return);
                 h.btnAction.setOnClickListener(v -> addSingleToPending(item));
             } else {
                 h.btnAction.setEnabled(false);
                 h.btnAction.setText("借");
-                h.btnAction.setBackgroundColor(0xFF9E9E9E);
+                h.btnAction.setBackgroundResource(R.drawable.bg_btn_action_disabled);
                 h.btnAction.setOnClickListener(null);
             }
         }
@@ -788,12 +788,12 @@ public class CheckoutFragment extends KeyDwonFragment {
                 h.btnAction.setEnabled(true);
                 boolean willBorrow = "IN_STOCK".equals(item.borrowStatus);
                 h.btnAction.setText(willBorrow ? "借" : "还");
-                h.btnAction.setBackgroundColor(willBorrow ? 0xFFFF5722 : 0xFF4CAF50);
+                h.btnAction.setBackgroundResource(willBorrow ? R.drawable.bg_btn_action_borrow : R.drawable.bg_btn_action_return);
                 h.btnAction.setOnClickListener(v -> addSingleToPending(item));
             } else {
                 h.btnAction.setEnabled(false);
                 h.btnAction.setText("借");
-                h.btnAction.setBackgroundColor(0xFF9E9E9E);
+                h.btnAction.setBackgroundResource(R.drawable.bg_btn_action_disabled);
                 h.btnAction.setOnClickListener(null);
             }
         }

@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:background="@color/bg_page"
+    android:padding="@dimen/sp_sm">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -16,477 +18,574 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Tag Scan Area -->
-            <LinearLayout
+            <!-- ============ 标签扫描区域卡片 ============ -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/rectangle_bg"
-                android:orientation="vertical"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/stockin_scan_tag"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                android:layout_marginBottom="@dimen/sp_sm"
+                app:cardElevation="2dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="@color/module_stockin_light">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    android:padding="@dimen/sp_md">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/stockin_scan_tag"
+                        android:textColor="@color/module_stockin"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/etStockInEpc"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_input_rounded"
+                            android:hint="@string/stockin_epc_hint"
+                            android:inputType="textNoSuggestions"
+                            android:minHeight="40dp"
+                            android:paddingStart="@dimen/sp_sm"
+                            android:paddingEnd="@dimen/sp_sm"
+                            android:singleLine="true"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp" />
+
+                        <Button
+                            android:id="@+id/btnStockInScan"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:layout_marginStart="@dimen/sp_md"
+                            android:background="@drawable/bg_btn_stockin_primary"
+                            android:paddingLeft="16dp"
+                            android:paddingRight="16dp"
+                            android:text="Scan"
+                            android:textColor="@color/white"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
+                    <!-- Power SeekBar -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvStockInPower"
+                            android:layout_width="90dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/power_label"
+                            android:textColor="@color/module_stockin"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <SeekBar
+                            android:id="@+id/seekBarStockInPower"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:max="29"
+                            android:progress="25" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ============ 物品详情卡片 ============ -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/sp_sm"
+                app:cardElevation="2dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="@color/module_stockin_light">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/sp_md">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/stockin_short_id"
+                        android:textColor="@color/module_stockin"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
 
                     <EditText
-                        android:id="@+id/etStockInEpc"
-                        android:layout_width="0dp"
+                        android:id="@+id/etStockInShortId"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="@string/stockin_epc_hint"
-                        android:inputType="textNoSuggestions"
+                        android:background="@drawable/bg_input_rounded"
+                        android:hint="@string/stockin_short_id"
+                        android:inputType="text"
+                        android:minHeight="40dp"
+                        android:paddingStart="@dimen/sp_sm"
+                        android:paddingEnd="@dimen/sp_sm"
                         android:singleLine="true"
                         android:textSize="13sp" />
 
-                    <Button
-                        android:id="@+id/btnStockInScan"
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:background="@drawable/button_bg"
-                        android:paddingLeft="8dp"
-                        android:paddingRight="8dp"
-                        android:text="Scan"
-                        android:textColor="@color/white"
-                        android:textSize="13sp" />
-                </LinearLayout>
+                        android:layout_marginTop="@dimen/sp_md"
+                        android:text="@string/stockin_description"
+                        android:textColor="@color/module_stockin"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
 
-                <!-- Power SeekBar -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    <EditText
+                        android:id="@+id/etStockInDesc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_input_rounded"
+                        android:hint="@string/stockin_description"
+                        android:inputType="text"
+                        android:minHeight="40dp"
+                        android:paddingStart="@dimen/sp_sm"
+                        android:paddingEnd="@dimen/sp_sm"
+                        android:singleLine="true"
+                        android:textSize="13sp" />
+
+                    <!-- Category -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/sp_md"
+                        android:text="@string/stockin_category"
+                        android:textColor="@color/module_stockin"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/etStockInCategory"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_input_rounded"
+                        android:hint="@string/stockin_category_hint"
+                        android:inputType="text"
+                        android:minHeight="40dp"
+                        android:paddingStart="@dimen/sp_sm"
+                        android:paddingEnd="@dimen/sp_sm"
+                        android:singleLine="true"
+                        android:textSize="13sp" />
+
+                    <!-- Item Number -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/sp_md"
+                        android:text="@string/stockin_item_number"
+                        android:textColor="@color/module_stockin"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/etStockInItemNumber"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_input_rounded"
+                        android:hint="@string/stockin_item_number_hint"
+                        android:inputType="text"
+                        android:minHeight="40dp"
+                        android:paddingStart="@dimen/sp_sm"
+                        android:paddingEnd="@dimen/sp_sm"
+                        android:singleLine="true"
+                        android:textSize="13sp" />
+
+                    <!-- Shelf + Room in one row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/sp_md"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/stockin_shelf"
+                                android:textColor="@color/module_stockin"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <EditText
+                                android:id="@+id/etStockInShelf"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_input_rounded"
+                                android:hint="@string/stockin_shelf_hint"
+                                android:inputType="text"
+                                android:minHeight="40dp"
+                                android:paddingStart="@dimen/sp_sm"
+                                android:paddingEnd="@dimen/sp_sm"
+                                android:singleLine="true"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/stockin_room"
+                                android:textColor="@color/module_stockin"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <EditText
+                                android:id="@+id/etStockInRoom"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_input_rounded"
+                                android:hint="@string/stockin_room_hint"
+                                android:inputType="text"
+                                android:minHeight="40dp"
+                                android:paddingStart="@dimen/sp_sm"
+                                android:paddingEnd="@dimen/sp_sm"
+                                android:singleLine="true"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Box selector (optional) -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/sp_md"
+                        android:text="@string/stockin_select_box"
+                        android:textColor="@color/module_stockin"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/sp_xs"
+                        app:cardElevation="0dp"
+                        app:cardCornerRadius="8dp"
+                        app:cardBackgroundColor="#FFFFFF">
+
+                        <Spinner
+                            android:id="@+id/spStockInBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:minHeight="40dp"
+                            android:paddingStart="@dimen/sp_sm"
+                            android:paddingEnd="@dimen/sp_sm"
+                            android:textSize="13sp" />
+                    </com.google.android.material.card.MaterialCardView>
 
                     <TextView
-                        android:id="@+id/tvStockInPower"
-                        android:layout_width="90dp"
+                        android:id="@+id/tvStockInBoxStatus"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/power_label"
-                        android:textColor="#666666"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/stockin_no_box"
+                        android:textColor="@color/text_hint"
                         android:textSize="12sp" />
-
-                    <SeekBar
-                        android:id="@+id/seekBarStockInPower"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:max="29"
-                        android:progress="25" />
                 </LinearLayout>
-            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            <!-- Item Details -->
-            <LinearLayout
+            <!-- ============ 照片与操作卡片 ============ -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rectangle_bg"
-                android:orientation="vertical"
-                android:padding="8dp">
+                android:layout_marginBottom="@dimen/sp_sm"
+                app:cardElevation="2dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="@color/module_stockin_light">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/stockin_short_id"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/etStockInShortId"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/stockin_short_id"
-                    android:inputType="text"
-                    android:singleLine="true"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/stockin_description"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/etStockInDesc"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/stockin_description"
-                    android:inputType="text"
-                    android:singleLine="true"
-                    android:textSize="13sp" />
-
-                <!-- Category -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/stockin_category"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/etStockInCategory"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/stockin_category_hint"
-                    android:inputType="text"
-                    android:singleLine="true"
-                    android:textSize="13sp" />
-
-                <!-- Item Number -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/stockin_item_number"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/etStockInItemNumber"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/stockin_item_number_hint"
-                    android:inputType="text"
-                    android:singleLine="true"
-                    android:textSize="13sp" />
-
-                <!-- Shelf + Room in one row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    android:padding="@dimen/sp_md">
 
+                    <!-- Photo section: button + count + thumbnail list -->
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-                        <TextView
+                        <Button
+                            android:id="@+id/btnStockInPhoto"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/stockin_shelf"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_btn_stockin_primary"
+                            android:paddingLeft="16dp"
+                            android:paddingRight="16dp"
+                            android:text="@string/stockin_take_photo"
+                            android:textColor="@color/white"
                             android:textSize="13sp"
                             android:textStyle="bold" />
 
-                        <EditText
-                            android:id="@+id/etStockInShelf"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/stockin_shelf_hint"
-                            android:inputType="text"
-                            android:singleLine="true"
-                            android:textSize="13sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
                         <TextView
+                            android:id="@+id/tvStockInPhotoCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/stockin_room"
-                            android:textSize="13sp"
+                            android:layout_marginStart="8dp"
+                            android:textColor="@color/text_hint"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <!-- Horizontal RecyclerView for photo thumbnails -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvPhotoThumbnails"
+                        android:layout_width="match_parent"
+                        android:layout_height="88dp"
+                        android:layout_marginTop="4dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone" />
+
+                    <!-- Action buttons -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/sp_lg"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/btnStockInAsBox"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_btn_stockin_primary"
+                            android:paddingLeft="4dp"
+                            android:paddingRight="4dp"
+                            android:text="@string/stockin_register_as_box"
+                            android:textColor="@color/white"
+                            android:textSize="11sp"
                             android:textStyle="bold" />
 
-                        <EditText
-                            android:id="@+id/etStockInRoom"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/stockin_room_hint"
-                            android:inputType="text"
-                            android:singleLine="true"
-                            android:textSize="13sp" />
+                        <Button
+                            android:id="@+id/btnStockInAsContent"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_marginStart="@dimen/sp_md"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_btn_stockin_primary"
+                            android:paddingLeft="4dp"
+                            android:paddingRight="4dp"
+                            android:text="@string/stockin_register_as_content"
+                            android:textColor="@color/white"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <Button
+                            android:id="@+id/btnStockInStandalone"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_marginStart="@dimen/sp_md"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_btn_stockin_primary"
+                            android:paddingLeft="4dp"
+                            android:paddingRight="4dp"
+                            android:text="@string/stockin_register_standalone"
+                            android:textColor="@color/white"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
-                </LinearLayout>
-
-                <!-- Box selector (optional) -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/stockin_select_box"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <Spinner
-                    android:id="@+id/spStockInBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/tvStockInBoxStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="@string/stockin_no_box"
-                    android:textColor="#888888"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <!-- Photos & Actions -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rectangle_bg"
-                android:orientation="vertical"
-                android:padding="8dp">
-
-                <!-- Photo section: button + count + thumbnail list -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
 
                     <Button
-                        android:id="@+id/btnStockInPhoto"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/button_bg"
-                        android:paddingLeft="16dp"
-                        android:paddingRight="16dp"
-                        android:text="@string/stockin_take_photo"
+                        android:id="@+id/btnStockInClear"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="@dimen/sp_md"
+                        android:background="@drawable/bg_btn_stockin_gray"
+                        android:text="@string/stockin_clear"
                         android:textColor="@color/white"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/tvStockInPhotoCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:textColor="#888888"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
-                <!-- Horizontal RecyclerView for photo thumbnails -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvPhotoThumbnails"
-                    android:layout_width="match_parent"
-                    android:layout_height="88dp"
-                    android:layout_marginTop="4dp"
-                    android:orientation="horizontal"
-                    android:visibility="gone" />
-
-                <!-- Action buttons -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
-
-                    <Button
-                        android:id="@+id/btnStockInAsBox"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="@drawable/button_bg"
-                        android:paddingLeft="4dp"
-                        android:paddingRight="4dp"
-                        android:text="@string/stockin_register_as_box"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
-
-                    <Button
-                        android:id="@+id/btnStockInAsContent"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/button_bg"
-                        android:paddingLeft="4dp"
-                        android:paddingRight="4dp"
-                        android:text="@string/stockin_register_as_content"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
-
-                    <Button
-                        android:id="@+id/btnStockInStandalone"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/button_bg"
-                        android:paddingLeft="4dp"
-                        android:paddingRight="4dp"
-                        android:text="@string/stockin_register_standalone"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/btnStockInClear"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/button_bg_gray"
-                    android:text="@string/stockin_clear"
-                    android:textColor="@color/white"
-                    android:textSize="13sp" />
-            </LinearLayout>
-
-            <!-- History Section -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rectangle_bg"
-                android:orientation="vertical"
-                android:padding="8dp">
-
-                <!-- Clickable Header for Collapse/Expand -->
-                <LinearLayout
-                    android:id="@+id/llStockInHistoryHeader"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingTop="2dp"
-                    android:paddingBottom="2dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/stockin_recent_history"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvStockInCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#888888"
-                        android:textSize="12sp" />
-
-                    <Button
-                        android:id="@+id/btnStockInDeleteAll"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/button_bg_gray"
-                        android:minHeight="28dp"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"
-                        android:paddingTop="1dp"
-                        android:paddingBottom="1dp"
-                        android:text="@string/stockin_delete_all"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
-
-                    <ImageView
-                        android:id="@+id/ivStockInHistoryArrow"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_marginStart="4dp"
-                        android:rotation="180"
-                        android:src="@drawable/ic_arrow_drop_down" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <TextView
-                    android:id="@+id/tvStockInHistoryEmpty"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="16dp"
-                    android:text="@string/stockin_empty_history"
-                    android:textColor="#999999"
-                    android:textSize="12sp"
-                    android:visibility="gone" />
-
-                <!-- History list container (LinearLayout for ScrollView compat) -->
-                <LinearLayout
-                    android:id="@+id/llStockInHistoryList"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:orientation="vertical" />
-            </LinearLayout>
-
-            <!-- Grouping Section (入库分组: BOX为组、CONTENT为子项、STANDALONE独立) -->
-            <LinearLayout
+            <!-- ============ 历史记录卡片 ============ -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rectangle_bg"
-                android:orientation="vertical"
-                android:padding="8dp">
+                android:layout_marginBottom="@dimen/sp_sm"
+                app:cardElevation="2dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="@color/module_stockin_light">
 
-                <!-- Clickable Header for Collapse/Expand -->
                 <LinearLayout
-                    android:id="@+id/llStockInGroupingHeader"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingTop="2dp"
-                    android:paddingBottom="2dp">
+                    android:orientation="vertical"
+                    android:padding="@dimen/sp_md">
+
+                    <!-- Clickable Header for Collapse/Expand -->
+                    <LinearLayout
+                        android:id="@+id/llStockInHistoryHeader"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingTop="2dp"
+                        android:paddingBottom="2dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/stockin_recent_history"
+                            android:textColor="@color/module_stockin"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvStockInCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_hint"
+                            android:textSize="12sp" />
+
+                        <Button
+                            android:id="@+id/btnStockInDeleteAll"
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:layout_marginStart="8dp"
+                            android:background="@drawable/bg_btn_stockin_gray"
+                            android:minHeight="28dp"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:paddingTop="1dp"
+                            android:paddingBottom="1dp"
+                            android:text="@string/stockin_delete_all"
+                            android:textColor="@color/white"
+                            android:textSize="12sp" />
+
+                        <ImageView
+                            android:id="@+id/ivStockInHistoryArrow"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginStart="4dp"
+                            android:rotation="180"
+                            android:src="@drawable/ic_arrow_drop_down" />
+                    </LinearLayout>
 
                     <TextView
-                        android:layout_width="0dp"
+                        android:id="@+id/tvStockInHistoryEmpty"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/stockin_grouping"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:gravity="center"
+                        android:padding="16dp"
+                        android:text="@string/stockin_empty_history"
+                        android:textColor="@color/text_hint"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
 
-                    <TextView
-                        android:id="@+id/tvStockInGroupingCount"
-                        android:layout_width="wrap_content"
+                    <!-- History list container -->
+                    <LinearLayout
+                        android:id="@+id/llStockInHistoryList"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="#888888"
-                        android:textSize="12sp" />
-
-                    <ImageView
-                        android:id="@+id/ivStockInGroupingArrow"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_marginStart="4dp"
-                        android:rotation="180"
-                        android:src="@drawable/ic_arrow_drop_down" />
+                        android:layout_marginTop="4dp"
+                        android:orientation="vertical" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <TextView
-                    android:id="@+id/tvStockInGroupingEmpty"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="16dp"
-                    android:text="@string/stockin_empty_history"
-                    android:textColor="#999999"
-                    android:textSize="12sp"
-                    android:visibility="gone" />
+            <!-- ============ 入库分组卡片 ============ -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/sp_sm"
+                app:cardElevation="2dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="@color/module_stockin_light">
 
-                <!-- Grouping list container (LinearLayout for ScrollView compat) -->
                 <LinearLayout
-                    android:id="@+id/llStockInGroupingList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:orientation="vertical" />
-            </LinearLayout>
+                    android:orientation="vertical"
+                    android:padding="@dimen/sp_md">
+
+                    <!-- Clickable Header for Collapse/Expand -->
+                    <LinearLayout
+                        android:id="@+id/llStockInGroupingHeader"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingTop="2dp"
+                        android:paddingBottom="2dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/stockin_grouping"
+                            android:textColor="@color/module_stockin"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvStockInGroupingCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_hint"
+                            android:textSize="12sp" />
+
+                        <ImageView
+                            android:id="@+id/ivStockInGroupingArrow"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginStart="4dp"
+                            android:rotation="180"
+                            android:src="@drawable/ic_arrow_drop_down" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvStockInGroupingEmpty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:padding="16dp"
+                        android:text="@string/stockin_empty_history"
+                        android:textColor="@color/text_hint"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
+
+                    <!-- Grouping list container -->
+                    <LinearLayout
+                        android:id="@+id/llStockInGroupingList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
         </LinearLayout>
     </ScrollView>
 

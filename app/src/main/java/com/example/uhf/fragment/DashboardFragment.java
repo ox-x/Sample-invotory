@@ -1,7 +1,6 @@
 package com.example.uhf.fragment;
 
 import android.app.AlertDialog;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -9,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.uhf.R;
@@ -17,8 +15,8 @@ import com.example.uhf.activity.UHFMainActivity;
 
 /**
  * Dashboard Fragment - 主菜单界面.
- * Shows four feature buttons: 借还, 入库, 仓库 (evenly split 1/3 width each)
- * and 高级选项 (full width at bottom).
+ * Shows four feature cards in a 2x2 grid: 借还, 入库, 仓库, 高级选项.
+ * Uses Material3 styled cards with feature-specific colors.
  */
 public class DashboardFragment extends KeyDwonFragment {
 
@@ -37,39 +35,31 @@ public class DashboardFragment extends KeyDwonFragment {
 
         View view = getView();
 
-        // Setup the four buttons with their respective colors and target fragments
-        setupButton(view, R.id.btnCheckout, "借还",
-                0xFFFF5722, CheckoutFragment.class, false);
-        setupButton(view, R.id.btnStockIn, "入库",
-                0xFF8BC34A, StockInFragment.class, true);
-        setupButton(view, R.id.btnWarehouse, "仓库",
-                0xFF673AB7, WarehouseFragment.class, false);
-        setupButton(view, R.id.btnAdvanced, "高级选项",
-                0xFF607D8B, AdvancedFragment.class, true);
+        // Setup card click listeners (background colors are set in XML)
+        setupCard(view, R.id.btnCheckout, CheckoutFragment.class, false);
+        setupCard(view, R.id.btnStockIn, StockInFragment.class, true);
+        setupCard(view, R.id.btnWarehouse, WarehouseFragment.class, false);
+        setupCard(view, R.id.btnAdvanced, AdvancedFragment.class, true);
     }
 
-    /**
-     * Configures a dashboard button: applies rounded rectangle background with given color,
-     * and sets up click listener that either opens the feature directly or requires password.
-     */
-    private void setupButton(View parent, int btnId, final String label,
-                             int color, final Class<?> fragmentClass, final boolean requiresPassword) {
-        TextView btn = parent.findViewById(btnId);
-
-        // Create rounded rectangle background with the specified color
-        GradientDrawable bg = new GradientDrawable();
-        bg.setShape(GradientDrawable.RECTANGLE);
-        bg.setCornerRadius(16f * getResources().getDisplayMetrics().density);
-        bg.setColor(color);
-        btn.setBackground(bg);
-
-        btn.setOnClickListener(v -> {
+    private void setupCard(View parent, int cardId, final Class<?> fragmentClass, final boolean requiresPassword) {
+        View card = parent.findViewById(cardId);
+        card.setOnClickListener(v -> {
             if (requiresPassword) {
-                showPasswordDialog(label, fragmentClass);
+                String featureLabel = getFeatureLabel(cardId);
+                showPasswordDialog(featureLabel, fragmentClass);
             } else {
-                mContext.openFeature(fragmentClass, label);
+                mContext.openFeature(fragmentClass, "");
             }
         });
+    }
+
+    private String getFeatureLabel(int cardId) {
+        if (cardId == R.id.btnCheckout) return getString(R.string.tab_borrow_return);
+        if (cardId == R.id.btnStockIn) return getString(R.string.tab_stockin);
+        if (cardId == R.id.btnWarehouse) return getString(R.string.tab_warehouse);
+        if (cardId == R.id.btnAdvanced) return getString(R.string.tab_advanced);
+        return "";
     }
 
     // ==================== Password Dialog ====================

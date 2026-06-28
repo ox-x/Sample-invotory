@@ -48,10 +48,12 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Stock-In Fragment (入库界面).
@@ -112,6 +114,9 @@ public class StockInFragment extends KeyDwonFragment {
     // Data (入库分组 - grouped)
     private List<DisplayItem> groupList = new ArrayList<>();
     private Map<String, List<DisplayItem>> childrenMap = new LinkedHashMap<>();
+
+    // Track which groups are expanded in the grouping view
+    private Set<String> expandedGroupEpcs = new HashSet<>();
 
     // Box list for spinner
     private List<BoxInfo> boxList = new ArrayList<>();
@@ -772,11 +777,42 @@ public class StockInFragment extends KeyDwonFragment {
 
             if (group.type == DisplayItem.TYPE_BOX) {
                 List<DisplayItem> children = childrenMap.getOrDefault(group.epc, new ArrayList<>());
+                // Create a container to hold all children for this group
+                final LinearLayout childContainer = new LinearLayout(mContext);
+                childContainer.setLayoutParams(new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT));
+                childContainer.setOrientation(LinearLayout.VERTICAL);
+                childContainer.setId(View.generateViewId());
+
                 for (DisplayItem child : children) {
-                    View childView = LayoutInflater.from(mContext).inflate(R.layout.item_si_child, llStockInGroupingList, false);
+                    View childView = LayoutInflater.from(mContext).inflate(R.layout.item_si_child, childContainer, false);
                     bindChildView(childView, child);
-                    llStockInGroupingList.addView(childView);
+                    childContainer.addView(childView);
                 }
+
+                // Initially show/hide based on expanded state
+                boolean isExpanded = expandedGroupEpcs.contains(group.epc);
+                childContainer.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+                llStockInGroupingList.addView(childContainer);
+
+                // Toggle on group view click (but not on delete button click)
+                final String epc = group.epc;
+                final ImageView ivArrow = groupView.findViewById(R.id.ivSiGroupArrow);
+                // Initialize arrow rotation based on current expanded state
+                ivArrow.setRotation(expandedGroupEpcs.contains(epc) ? 180f : 0f);
+                groupView.setOnClickListener(v -> {
+                    boolean currentlyExpanded = expandedGroupEpcs.contains(epc);
+                    if (currentlyExpanded) {
+                        expandedGroupEpcs.remove(epc);
+                        childContainer.setVisibility(View.GONE);
+                        ivArrow.setRotation(0f);
+                    } else {
+                        expandedGroupEpcs.add(epc);
+                        childContainer.setVisibility(View.VISIBLE);
+                        ivArrow.setRotation(180f);
+                    }
+                });
             }
         }
     }
@@ -788,6 +824,7 @@ public class StockInFragment extends KeyDwonFragment {
         TextView tvTimestamp = view.findViewById(R.id.tvSiGroupTimestamp);
         TextView tvInfo = view.findViewById(R.id.tvSiGroupInfo);
         Button btnDelete = view.findViewById(R.id.btnSiGroupDelete);
+        ImageView ivArrow = view.findViewById(R.id.ivSiGroupArrow);
 
         tvType.setText(item.type == DisplayItem.TYPE_BOX ? "\uD83D\uDCE6" : "\uD83D\uDCCB");
 
@@ -812,8 +849,10 @@ public class StockInFragment extends KeyDwonFragment {
             int childCount = childrenMap.getOrDefault(item.epc, new ArrayList<>()).size();
             tvInfo.setText("TID: " + truncateEpc(item.epc)
                     + "  |  " + getString(R.string.warehouse_contents_count, childCount));
+            ivArrow.setVisibility(View.VISIBLE);
         } else {
             tvInfo.setText("TID: " + truncateEpc(item.epc));
+            ivArrow.setVisibility(View.GONE);
         }
 
         btnDelete.setOnClickListener(v -> confirmDeleteGroupingItem(item));

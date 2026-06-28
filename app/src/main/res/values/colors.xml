@@ -97,5 +97,68 @@
         <item>#888888</item>
     </string-array>
 
+    <!-- ======== Material3 语义化颜色体系 ======== -->
+    <color name="md3_primary">#1565C0</color>
+    <color name="md3_on_primary">#FFFFFF</color>
+    <color name="md3_primary_container">#D1E4FF</color>
+    <color name="md3_on_primary_container">#001D36</color>
+    <color name="md3_secondary">#545F71</color>
+    <color name="md3_on_secondary">#FFFFFF</color>
+    <color name="md3_background">#FAFAFA</color>
+    <color name="md3_surface">#FFFFFF</color>
+    <color name="md3_surface_variant">#E0E2E5</color>
+    <color name="md3_error">#BA1A1A</color>
+    <color name="md3_on_error">#FFFFFF</color>
+
+    <!-- 模块主色（降低饱和度，更柔和） -->
+    <color name="module_checkout">#C5703A</color>
+    <color name="module_stockin">#5A8B5C</color>
+    <color name="module_warehouse">#7A5B94</color>
+    <color name="module_advanced">#4A5A63</color>
+
+    <!-- 模块主色（浅色背景版） -->
+    <color name="module_checkout_light">#FFF3E0</color>
+    <color name="module_stockin_light">#E8F5E9</color>
+    <color name="module_warehouse_light">#F3E5F5</color>
+    <color name="module_advanced_light">#ECEFF1</color>
+
+    <!-- 库存模块按钮色 -->
+    <color name="stockin_btn">#4A7C4C</color>
+    <color name="stockin_btn_pressed">#3D6B3F</color>
+    <color name="stockin_btn_gray">#95A896</color>
+    <color name="stockin_btn_gray_pressed">#7E917F</color>
+
+    <!-- 仓库模块按钮色 -->
+    <color name="warehouse_btn">#6A4B84</color>
+    <color name="warehouse_btn_pressed">#5A3B74</color>
+    <color name="warehouse_btn_gray">#9D8DA6</color>
+    <color name="warehouse_btn_gray_pressed">#877A90</color>
+
+    <!-- 借还模块按钮色 -->
+    <color name="checkout_btn">#E85D2A</color>
+    <color name="checkout_btn_pressed">#CC4F20</color>
+    <color name="checkout_btn_gray">#C4A898</color>
+    <color name="checkout_btn_gray_pressed">#AD9285</color>
+
+    <!-- 语义化背景色 -->
+    <color name="bg_page">#E0E0E0</color>
+    <color name="bg_card">#FFFFFF</color>
+    <color name="bg_toolbar">#1565C0</color>
+    <color name="bg_input">#F0F0F0</color>
+    <color name="bg_divider">#E0E0E0</color>
+
+    <!-- 开屏动画背景（低饱和度暖灰） -->
+    <color name="splash_background">#F5F0EB</color>
+
+    <!-- 详情页主题色（低饱和蓝） -->
+    <color name="detail_primary">#5A7F9E</color>
+    <color name="detail_primary_dark">#4D6C87</color>
+
+    <!-- 语义化文本色 -->
+    <color name="text_primary">#1C1B1F</color>
+    <color name="text_secondary">#49454F</color>
+    <color name="text_hint">#9E9E9E</color>
+    <color name="text_on_primary">#FFFFFF</color>
+    <color name="text_on_dark">#FFFFFF</color>
 
 </resources>

@@ -3,6 +3,10 @@
     <style name="Base.Theme.Uhfuartdemo" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Make the status bar transparent so it shows the page background -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <!-- Window background matches page background to avoid white flash during transitions -->
+        <item name="android:windowBackground">@color/bg_page</item>
     </style>
 
     <style name="Theme.Uhfuartdemo" parent="Base.Theme.Uhfuartdemo" />

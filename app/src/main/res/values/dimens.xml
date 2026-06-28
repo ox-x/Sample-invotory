@@ -54,5 +54,19 @@
     <dimen name="network_list_ssid_size">18.0sp</dimen>
     <dimen name="network_list_state_width">44.0dip</dimen>
 
+    <!-- ======== 语义化间距体系 ======== -->
+    <dimen name="sp_xxs">2dp</dimen>
+    <dimen name="sp_xs">4dp</dimen>
+    <dimen name="sp_sm">6dp</dimen>
+    <dimen name="sp_md">8dp</dimen>
+    <dimen name="sp_lg">12dp</dimen>
+    <dimen name="sp_xl">16dp</dimen>
+    <dimen name="sp_xxl">24dp</dimen>
+    <dimen name="sp_xxxl">32dp</dimen>
+
+    <!-- ======== 圆角体系 ======== -->
+    <dimen name="corner_small">8dp</dimen>
+    <dimen name="corner_medium">12dp</dimen>
+    <dimen name="corner_large">16dp</dimen>
 
 </resources>

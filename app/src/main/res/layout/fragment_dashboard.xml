@@ -1,71 +1,227 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"
-    android:orientation="vertical"
-    android:padding="12dp">
+    android:background="@color/bg_page"
+    android:orientation="vertical">
 
-    <!-- Three main function buttons - horizontally evenly divided -->
+    <!-- ============ 三功能卡片行：借还 + 入库 + 仓库（等宽铺满） ============ -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:padding="@dimen/sp_lg">
 
-        <!-- 借还 -->
-        <TextView
-            android:id="@+id/btnCheckout"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_margin="6dp"
-            android:background="@drawable/dashboard_btn_rounded"
             android:gravity="center"
-            android:text="🔄\n借还"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp" />
+            android:orientation="horizontal">
 
-        <!-- 入库 -->
-        <TextView
-            android:id="@+id/btnStockIn"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_margin="6dp"
-            android:background="@drawable/dashboard_btn_rounded"
-            android:gravity="center"
-            android:text="📥\n入库"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp" />
+            <!-- 借还 -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnCheckout"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/sp_sm"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardElevation="2dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="@color/module_checkout_light">
 
-        <!-- 仓库 -->
-        <TextView
-            android:id="@+id/btnWarehouse"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_margin="6dp"
-            android:background="@drawable/dashboard_btn_rounded"
-            android:gravity="center"
-            android:text="🏭\n仓库"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp" />
+                <!-- 毛玻璃效果叠加层 -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:background="@drawable/bg_card_frost_checkout" />
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="@dimen/sp_lg">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🔄"
+                        android:textSize="28sp"
+                        android:textColor="@color/module_checkout" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/sp_sm"
+                        android:text="@string/tab_borrow_return"
+                        android:textColor="@color/module_checkout"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 入库 -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnStockIn"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/sp_sm"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardElevation="2dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="@color/module_stockin_light">
+
+                <!-- 毛玻璃效果叠加层 -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:background="@drawable/bg_card_frost_stockin" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="@dimen/sp_lg">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📥"
+                        android:textSize="28sp"
+                        android:textColor="@color/module_stockin" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/sp_sm"
+                        android:text="@string/tab_stockin"
+                        android:textColor="@color/module_stockin"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 仓库 -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnWarehouse"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/sp_sm"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardElevation="2dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="@color/module_warehouse_light">
+
+                <!-- 毛玻璃效果叠加层 -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:background="@drawable/bg_card_frost_warehouse" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="@dimen/sp_lg">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🏭"
+                        android:textSize="28sp"
+                        android:textColor="@color/module_warehouse" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/sp_sm"
+                        android:text="@string/tab_warehouse"
+                        android:textColor="@color/module_warehouse"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
     </LinearLayout>
 
-    <!-- Advanced options button at the bottom -->
-    <TextView
+    <!-- ============ 高级选项（底部长条状按钮） ============ -->
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/btnAdvanced"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginTop="6dp"
-        android:layout_marginBottom="6dp"
-        android:background="@drawable/dashboard_btn_rounded"
-        android:gravity="center"
-        android:text="⚙️ 高级选项"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp" />
+        android:layout_height="80dp"
+        android:layout_marginHorizontal="@dimen/sp_lg"
+        android:layout_marginBottom="@dimen/sp_lg"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        app:cardElevation="2dp"
+        app:cardCornerRadius="16dp"
+        app:cardBackgroundColor="@color/module_advanced_light">
+
+        <!-- 毛玻璃效果叠加层 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="false"
+            android:focusable="false"
+            android:background="@drawable/bg_card_frost_advanced" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/sp_xxl">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⚙️"
+                android:textSize="28sp"
+                android:textColor="@color/module_advanced" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/sp_md"
+                android:text="@string/tab_advanced"
+                android:textColor="@color/module_advanced"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textColor="@color/module_advanced"
+                android:textSize="28sp"
+                android:alpha="0.4" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    借还卡片 - 毛玻璃叠加层（无阴影，阴影由 cardElevation 提供）
+    半透明白色基底 + 主题色微染 + 高光反射，叠加在卡片 module_checkout_light 背景之上
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 毛玻璃基底：半透明白色 -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#B3FFFFFF" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+    <!-- 主题色微染：极低透明度橙色 -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#1AE65100" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+    <!-- 玻璃高光反射：左上至右下渐变 -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#99FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:angle="135" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+</layer-list>

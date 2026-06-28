@@ -9,7 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#3F51B5"
+        android:background="@color/detail_primary"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="8dp">
@@ -18,7 +18,7 @@
             android:id="@+id/btnDetailBack"
             android:layout_width="wrap_content"
             android:layout_height="32dp"
-            android:background="#55FFFFFF"
+            android:background="@drawable/bg_btn_topbar"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:text="← 返回"
@@ -41,7 +41,7 @@
             android:id="@+id/btnDetailEdit"
             android:layout_width="wrap_content"
             android:layout_height="32dp"
-            android:background="#55FFFFFF"
+            android:background="@drawable/bg_btn_topbar"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:text="@string/stockin_edit"
@@ -98,7 +98,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
-                android:background="#FFFFFF"
+                android:background="@drawable/bg_card_detail"
                 android:orientation="vertical"
                 android:padding="10dp">
 
@@ -106,7 +106,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="基本信息"
-                    android:textColor="#3F51B5"
+                    android:textColor="@color/detail_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
@@ -116,7 +116,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     android:textColor="#333333"
-                    android:textSize="12sp" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tvDetailShortId"
@@ -124,7 +124,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:textColor="#333333"
-                    android:textSize="12sp" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tvDetailDesc"
@@ -132,7 +132,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:textColor="#333333"
-                    android:textSize="12sp" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tvDetailCategory"
@@ -140,7 +140,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:textColor="#333333"
-                    android:textSize="12sp" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tvDetailItemNumber"
@@ -148,7 +148,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:textColor="#333333"
-                    android:textSize="12sp" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tvDetailShelf"
@@ -156,7 +156,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:textColor="#333333"
-                    android:textSize="12sp" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tvDetailRoom"
@@ -164,7 +164,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:textColor="#333333"
-                    android:textSize="12sp" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tvDetailType"
@@ -172,7 +172,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:textColor="#333333"
-                    android:textSize="12sp" />
+                    android:textSize="14sp" />
 
                 <!-- Editable fields (hidden by default, shown in edit mode) -->
                 <LinearLayout
@@ -310,7 +310,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:background="@drawable/button_bg"
+                            android:background="@drawable/bg_btn_detail_primary"
                             android:text="@string/stockin_save"
                             android:textColor="@color/white"
                             android:textSize="13sp" />
@@ -335,7 +335,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
-                android:background="#FFFFFF"
+                android:background="@drawable/bg_card_detail"
                 android:orientation="vertical"
                 android:padding="10dp"
                 android:visibility="gone">
@@ -344,7 +344,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="所属箱子"
-                    android:textColor="#3F51B5"
+                    android:textColor="@color/detail_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
@@ -354,7 +354,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     android:textColor="#333333"
-                    android:textSize="12sp" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tvDetailBoxEpc"
@@ -370,7 +370,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
-                android:background="#FFFFFF"
+                android:background="@drawable/bg_card_detail"
                 android:orientation="vertical"
                 android:padding="10dp">
 
@@ -378,7 +378,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="状态信息"
-                    android:textColor="#3F51B5"
+                    android:textColor="@color/detail_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
@@ -404,7 +404,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
-                android:background="#FFFFFF"
+                android:background="@drawable/bg_card_detail"
                 android:orientation="vertical"
                 android:padding="10dp">
 
@@ -412,7 +412,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="雷达定位"
-                    android:textColor="#3F51B5"
+                    android:textColor="@color/detail_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
@@ -467,7 +467,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/button_bg"
+                        android:background="@drawable/bg_btn_detail_primary"
                         android:text="开始定位"
                         android:textColor="@color/white"
                         android:textSize="13sp" />
@@ -478,7 +478,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        android:background="@drawable/button_bg"
+                        android:background="@drawable/bg_btn_detail_primary"
                         android:text="停止定位"
                         android:textColor="@color/white"
                         android:textSize="13sp" />
@@ -489,7 +489,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#FFFFFF"
+                android:background="@drawable/bg_card_detail"
                 android:orientation="vertical"
                 android:padding="10dp">
 
@@ -508,7 +508,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="历史记录"
-                        android:textColor="#3F51B5"
+                        android:textColor="@color/detail_primary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
