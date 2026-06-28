@@ -5,16 +5,42 @@
     android:background="@color/splash_background"
     android:gravity="center">
 
-    <ImageView
-        android:id="@+id/iv_splash_logo"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:background="@color/splash_background"
-        android:alpha="0"
-        android:src="@mipmap/ic_launcher"
-        android:elevation="8dp"
-        android:outlineProvider="bounds"
-        android:contentDescription="@string/app_name" />
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/iv_splash_logo"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:background="@color/splash_background"
+            android:alpha="0"
+            android:src="@mipmap/ic_launcher"
+            android:elevation="8dp"
+            android:outlineProvider="bounds"
+            android:contentDescription="@string/app_name" />
+
+        <TextView
+            android:id="@+id/tv_splash_author"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:alpha="0"
+            android:text="by XTX"
+            android:textColor="#888888"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tv_splash_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:alpha="0"
+            android:textColor="#AAAAAA"
+            android:textSize="12sp" />
+    </LinearLayout>
 
 </RelativeLayout>

@@ -80,6 +80,8 @@ public class UHFMainActivity extends BaseTabFragmentActivity {
         initUHF();
 
         fm = getSupportFragmentManager();
+        // Check if password reset is triggered via source code
+        DashboardFragment.checkPasswordReset(this);
         // Show dashboard initially
         if (savedInstanceState == null) {
             showDashboard();

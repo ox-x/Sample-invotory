@@ -68,7 +68,32 @@ public class DashboardFragment extends KeyDwonFragment {
 
     private static final String PREFS_NAME = "app_prefs";
     private static final String KEY_ADMIN_PASSWORD = "admin_password";
+    private static final String KEY_RESET_TOKEN = "reset_token_applied";
     private static final String DEFAULT_PASSWORD = "aaa";
+
+    /**
+     * 密码重置令牌。
+     * 正常情况保持空字符串（无效）。
+     * 忘记密码时，将此值改为任意非空字符串（如 "reset"），重新编译安装即可重置密码。
+     * 重置后请改回空字符串。
+     */
+    private static final String RESET_TOKEN = "reset";
+
+    /**
+     * 启动时调用，检测 RESET_TOKEN 是否已更改。
+     * 若非空且与上次记录的令牌不同，则重置密码为默认值。
+     */
+    public static void checkPasswordReset(Context context) {
+        if (RESET_TOKEN == null || RESET_TOKEN.isEmpty()) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String lastToken = prefs.getString(KEY_RESET_TOKEN, "");
+        if (!RESET_TOKEN.equals(lastToken)) {
+            prefs.edit()
+                    .putString(KEY_ADMIN_PASSWORD, DEFAULT_PASSWORD)
+                    .putString(KEY_RESET_TOKEN, RESET_TOKEN)
+                    .apply();
+        }
+    }
 
     public static String getAdminPassword(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
