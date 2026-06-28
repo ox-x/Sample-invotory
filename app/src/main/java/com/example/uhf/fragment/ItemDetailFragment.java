@@ -1,11 +1,18 @@
 package com.example.uhf.fragment;
 
 import android.annotation.SuppressLint;
+ import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.Manifest;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -19,6 +26,7 @@ import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -27,6 +35,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
@@ -44,9 +55,11 @@ import com.rscja.deviceapi.interfaces.IUHF;
 import com.rscja.deviceapi.interfaces.IUHFRadarLocationCallback;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -78,7 +91,14 @@ public class ItemDetailFragment extends KeyDwonFragment {
     private FrameLayout flPhotoContainer;
     private ViewPager vpPhotos;
     private TextView tvPhotoIndicator;
+    private ImageButton btnAddPhoto;
+    private ImageButton ivPhotoRemove;
     private List<String> photoPaths = new ArrayList<>();
+
+    // Camera
+    private static final int REQUEST_DETAIL_PHOTO = 500;
+    private static final int REQUEST_CAMERA_PERMISSION = 501;
+    private String pendingPhotoPath = null;
 
     // Basic info views
     private TextView tvEpc, tvShortId, tvDesc, tvType;
@@ -153,7 +173,11 @@ public class ItemDetailFragment extends KeyDwonFragment {
     @Override
     public void onResume() {
         super.onResume();
-        loadItemDetail();
+        // Only reload from database when not in edit mode, otherwise
+        // in-memory changes (e.g. newly added photos) would be overwritten.
+        if (!isEditMode) {
+            loadItemDetail();
+        }
     }
 
     private void initViews() {
@@ -166,6 +190,10 @@ public class ItemDetailFragment extends KeyDwonFragment {
         flPhotoContainer = v.findViewById(R.id.flDetailPhotoContainer);
         vpPhotos = v.findViewById(R.id.vpDetailPhotos);
         tvPhotoIndicator = v.findViewById(R.id.tvDetailPhotoIndicator);
+        btnAddPhoto = v.findViewById(R.id.btnDetailAddPhoto);
+        ivPhotoRemove = v.findViewById(R.id.ivDetailPhotoRemove);
+        btnAddPhoto.setOnClickListener(vv -> takeDetailPhoto());
+        ivPhotoRemove.setOnClickListener(vv -> deleteCurrentPhoto());
 
         // Basic info
         tvEpc = v.findViewById(R.id.tvDetailEpc);
@@ -433,11 +461,21 @@ public class ItemDetailFragment extends KeyDwonFragment {
         }
 
         if (photoPaths.isEmpty()) {
-            flPhotoContainer.setVisibility(View.GONE);
+            // In edit mode, keep container visible so the add photo button stays accessible
+            if (isEditMode) {
+                flPhotoContainer.setVisibility(View.VISIBLE);
+                vpPhotos.setVisibility(View.GONE);
+                tvPhotoIndicator.setVisibility(View.GONE);
+                ivPhotoRemove.setVisibility(View.GONE);
+                btnAddPhoto.setVisibility(View.VISIBLE);
+            } else {
+                flPhotoContainer.setVisibility(View.GONE);
+            }
             return;
         }
 
         flPhotoContainer.setVisibility(View.VISIBLE);
+        vpPhotos.setVisibility(View.VISIBLE);
         vpPhotos.setAdapter(new PhotoPagerAdapter());
 
         // Set ViewPager height to 4:3 ratio
@@ -677,12 +715,28 @@ public class ItemDetailFragment extends KeyDwonFragment {
 
         llEditFields.setVisibility(View.VISIBLE);
         btnEdit.setText(R.string.stockin_cancel_edit);
+
+        // Show photo container if hidden (e.g. no photos initially) and show controls
+        flPhotoContainer.setVisibility(View.VISIBLE);
+        if (photoPaths.isEmpty()) {
+            vpPhotos.setVisibility(View.GONE);
+            tvPhotoIndicator.setVisibility(View.GONE);
+            ivPhotoRemove.setVisibility(View.GONE);
+        } else {
+            vpPhotos.setVisibility(View.VISIBLE);
+        }
+        btnAddPhoto.setVisibility(View.VISIBLE);
+        updateDeleteButtonVisibility();
     }
 
     private void exitEditMode() {
         isEditMode = false;
         llEditFields.setVisibility(View.GONE);
         btnEdit.setText(R.string.stockin_edit);
+
+        // Hide photo controls
+        btnAddPhoto.setVisibility(View.GONE);
+        ivPhotoRemove.setVisibility(View.GONE);
     }
 
     private void saveChanges() {
@@ -695,8 +749,11 @@ public class ItemDetailFragment extends KeyDwonFragment {
         String shelf = etDetailShelf.getText().toString().trim();
         String room = etDetailRoom.getText().toString().trim();
 
+        // Build photo paths JSON
+        String photoPathsJson = buildPhotoPathsJson();
+
         int result = dbHelper.updateStockIn(currentStockInInfo.id,
-                shortId, desc, category, itemNumber, shelf, room, null);
+                shortId, desc, category, itemNumber, shelf, room, photoPathsJson);
 
         if (result > 0) {
             mContext.showToast(R.string.stockin_saved);
@@ -704,6 +761,100 @@ public class ItemDetailFragment extends KeyDwonFragment {
             loadItemDetail();
         } else {
             mContext.showToast(R.string.stockin_save_fail);
+        }
+    }
+
+    private String buildPhotoPathsJson() {
+        if (photoPaths.isEmpty()) return null;
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < photoPaths.size(); i++) {
+            if (i > 0) sb.append(",");
+            sb.append("\"").append(photoPaths.get(i).replace("\\", "\\\\").replace("\"", "\\\"")).append("\"");
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    // ==================== Camera / Photo ====================
+
+    private void takeDetailPhoto() {
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(mContext,
+                    new String[]{Manifest.permission.CAMERA},
+                    REQUEST_CAMERA_PERMISSION);
+            return;
+        }
+        launchDetailCamera();
+    }
+
+    private void launchDetailCamera() {
+        try {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            File photoFile = createDetailImageFile();
+            pendingPhotoPath = photoFile.getAbsolutePath();
+            Uri photoUri = FileProvider.getUriForFile(mContext,
+                    mContext.getPackageName() + ".fileprovider", photoFile);
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+            takePictureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivityForResult(takePictureIntent, REQUEST_DETAIL_PHOTO);
+        } catch (Exception ex) {
+            Log.e(TAG, "Error launching camera", ex);
+            Toast.makeText(mContext, "Camera error: " + ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private File createDetailImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+        String imageFileName = "UHF_detail_" + timeStamp + "_";
+        File storageDir = new File(mContext.getCacheDir(), "UHF_photos");
+        if (!storageDir.exists()) storageDir.mkdirs();
+        return File.createTempFile(imageFileName, ".jpg", storageDir);
+    }
+
+    private void deleteCurrentPhoto() {
+        if (photoPaths.isEmpty() || vpPhotos.getCurrentItem() >= photoPaths.size()) return;
+        int index = vpPhotos.getCurrentItem();
+        String path = photoPaths.remove(index);
+        // Delete the file
+        File f = new File(path);
+        if (f.exists()) f.delete();
+
+        // Refresh the ViewPager — pass a copy to avoid clear() conflict in loadPhotos
+        loadPhotos(new ArrayList<>(photoPaths));
+        updateDeleteButtonVisibility();
+    }
+
+    private void updateDeleteButtonVisibility() {
+        ivPhotoRemove.setVisibility(
+                isEditMode && photoPaths.size() > 0 ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                launchDetailCamera();
+            } else {
+                Toast.makeText(mContext, "Camera permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == REQUEST_DETAIL_PHOTO && pendingPhotoPath != null) {
+                photoPaths.add(pendingPhotoPath);
+                // Pass a copy to avoid clear() conflict in loadPhotos
+                loadPhotos(new ArrayList<>(photoPaths));
+                updateDeleteButtonVisibility();
+                pendingPhotoPath = null;
+                Toast.makeText(mContext, "照片已保存", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

@@ -66,7 +66,7 @@
             android:orientation="vertical"
             android:padding="8dp">
 
-            <!-- Photo: ViewPager + Indicator -->
+            <!-- Photo: ViewPager + Indicator + Controls -->
             <FrameLayout
                 android:id="@+id/flDetailPhotoContainer"
                 android:layout_width="match_parent"
@@ -94,6 +94,32 @@
                     android:textColor="@color/white"
                     android:textSize="11sp"
                     android:visibility="gone" />
+
+                <!-- Add Photo Button (visible in edit mode) -->
+                <ImageButton
+                    android:id="@+id/btnDetailAddPhoto"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="bottom|end"
+                    android:layout_margin="8dp"
+                    android:background="@drawable/bg_btn_topbar"
+                    android:src="@android:drawable/ic_menu_camera"
+                    android:scaleType="center"
+                    android:visibility="gone"
+                    android:contentDescription="添加照片" />
+
+                <!-- Delete Current Photo Button (visible in edit mode) -->
+                <ImageButton
+                    android:id="@+id/ivDetailPhotoRemove"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="top|end"
+                    android:layout_margin="6dp"
+                    android:background="#CCFF0000"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    android:scaleType="center"
+                    android:visibility="gone"
+                    android:contentDescription="删除照片" />
             </FrameLayout>
 
             <!-- Basic Info Card -->
