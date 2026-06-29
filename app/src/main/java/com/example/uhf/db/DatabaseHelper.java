@@ -554,6 +554,89 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Update stock-in record including type and/or box changes.
+     * Handles cascading cleanup and creation of boxes/contents records
+     * when the type is changed (e.g. STANDALONE → BOX, BOX → CONTENT, etc.)
+     * or when a CONTENT item is moved to a different box.
+     */
+    public int updateStockInWithTypeChange(long id, String shortId, String description,
+                                           String category, String itemNumber, String shelf, String room,
+                                           String photoPathsJson, String newType, String newBoxEpc) {
+        StockInInfo info = getStockInById(id);
+        if (info == null) return 0;
+
+        String oldType = info.type != null ? info.type : "";
+        String epc = info.epc;
+        String oldBoxEpc = info.boxEpc != null ? info.boxEpc : "";
+
+        // Handle type change: clean up old records in boxes/contents tables
+        if (!oldType.equals(newType)) {
+            if ("BOX".equals(oldType)) {
+                // Was a box → remove from boxes table (also cascades to contents)
+                deleteBox(epc);
+            } else if ("CONTENT".equals(oldType)) {
+                // Was content → remove from contents table
+                if (!oldBoxEpc.isEmpty()) {
+                    deleteContentByEpc(oldBoxEpc, epc);
+                }
+            }
+            // STANDALONE: no extra tables to clean up
+        } else if ("CONTENT".equals(newType)) {
+            // Type unchanged (CONTENT→CONTENT) but box might have changed
+            String newBox = newBoxEpc != null ? newBoxEpc : "";
+            if (!oldBoxEpc.equals(newBox)) {
+                if (!oldBoxEpc.isEmpty()) {
+                    deleteContentByEpc(oldBoxEpc, epc);
+                }
+            }
+        }
+
+        // Update stock_ins table
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(SI_SHORT_ID, shortId != null ? shortId : "");
+        cv.put(SI_DESCRIPTION, description != null ? description : "");
+        cv.put(SI_CATEGORY, category != null ? category : "");
+        cv.put(SI_ITEM_NUMBER, itemNumber != null ? itemNumber : "");
+        cv.put(SI_SHELF, shelf != null ? shelf : "");
+        cv.put(SI_ROOM, room != null ? room : "");
+        cv.put(SI_TYPE, newType != null ? newType : "STANDALONE");
+        cv.put(SI_BOX_EPC, newBoxEpc != null ? newBoxEpc : "");
+        if (photoPathsJson != null) {
+            cv.put(SI_PHOTO_PATHS, photoPathsJson);
+            cv.put(SI_PHOTO_PATH, "");
+        }
+        int result = db.update(TABLE_STOCK_INS, cv, SI_ID + "=?", new String[]{String.valueOf(id)});
+
+        // Create new records based on new type
+        if (result > 0) {
+            String firstPhoto = "";
+            if (photoPathsJson != null) {
+                List<String> paths = StockInInfo.jsonToPhotoPaths(photoPathsJson);
+                if (!paths.isEmpty()) firstPhoto = paths.get(0);
+            } else if (info.photoPaths != null && !info.photoPaths.isEmpty()) {
+                firstPhoto = info.photoPaths.get(0);
+            }
+
+            if ("BOX".equals(newType)) {
+                insertBox(epc, shortId, description, firstPhoto);
+            } else if ("CONTENT".equals(newType)) {
+                if (newBoxEpc != null && !newBoxEpc.isEmpty()) {
+                    BoxInfo box = getBoxByEpc(newBoxEpc);
+                    if (box == null) {
+                        insertBox(newBoxEpc, "", "", "");
+                    }
+                    if (!contentExists(newBoxEpc, epc)) {
+                        insertContent(newBoxEpc, epc, shortId, description, firstPhoto);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Delete all stock-in records.
      * Cascades to boxes and contents tables.
      */

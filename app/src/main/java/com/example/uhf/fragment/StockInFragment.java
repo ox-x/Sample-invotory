@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -122,6 +123,9 @@ public class StockInFragment extends KeyDwonFragment {
     private List<BoxInfo> boxList = new ArrayList<>();
     private String selectedBoxEpc = "";
 
+    // ScrollView for saving/restoring scroll position
+    private ScrollView scrollStockIn;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_stockin, container, false);
@@ -142,8 +146,17 @@ public class StockInFragment extends KeyDwonFragment {
     @Override
     public void onResume() {
         super.onResume();
+        // Save scroll position before reload (views will be rebuilt)
+        final int savedScrollY = scrollStockIn != null ? scrollStockIn.getScrollY() : 0;
+
         loadBoxList();
         loadHistory();
+
+        // Restore scroll position after views are rebuilt and laid out
+        if (scrollStockIn != null && savedScrollY > 0) {
+            scrollStockIn.post(() -> scrollStockIn.scrollTo(0, savedScrollY));
+        }
+
         // Refresh current power level
         int power = mContext.mReader.getPower();
         if (power > 0 && power <= 30) {
@@ -250,6 +263,8 @@ public class StockInFragment extends KeyDwonFragment {
 
         // Grouping header click -> toggle collapse/expand
         llStockInGroupingHeader.setOnClickListener(vv -> toggleGroupingVisibility());
+
+        scrollStockIn = v.findViewById(R.id.scrollStockIn);
 
         spStockInBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

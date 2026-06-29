@@ -23,13 +23,18 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -115,6 +120,14 @@ public class ItemDetailFragment extends KeyDwonFragment {
     private EditText etDetailShelf, etDetailRoom;
     private Button btnDetailSave, btnDetailCancel;
     private boolean isEditMode = false;
+
+    // Type selection fields
+    private RadioGroup rgDetailType;
+    private RadioButton rbDetailTypeStandalone, rbDetailTypeBox, rbDetailTypeContent;
+    private LinearLayout llDetailBoxSelection;
+    private Spinner spDetailBox;
+    private List<BoxInfo> detailBoxList = new ArrayList<>();
+    private String detailSelectedBoxEpc = "";
 
     // Radar views
     private RadarView radarView;
@@ -223,6 +236,14 @@ public class ItemDetailFragment extends KeyDwonFragment {
         btnDetailSave = v.findViewById(R.id.btnDetailSave);
         btnDetailCancel = v.findViewById(R.id.btnDetailCancel);
 
+        // Type selection
+        rgDetailType = v.findViewById(R.id.rgDetailType);
+        rbDetailTypeStandalone = v.findViewById(R.id.rbDetailTypeStandalone);
+        rbDetailTypeBox = v.findViewById(R.id.rbDetailTypeBox);
+        rbDetailTypeContent = v.findViewById(R.id.rbDetailTypeContent);
+        llDetailBoxSelection = v.findViewById(R.id.llDetailBoxSelection);
+        spDetailBox = v.findViewById(R.id.spDetailBox);
+
         // Radar views
         radarView = v.findViewById(R.id.radarViewDetail);
         seekBarPower = v.findViewById(R.id.seekBarPowerDetail);
@@ -239,6 +260,33 @@ public class ItemDetailFragment extends KeyDwonFragment {
         btnEdit.setOnClickListener(vv -> toggleEditMode());
         btnDetailSave.setOnClickListener(vv -> saveChanges());
         btnDetailCancel.setOnClickListener(vv -> exitEditMode());
+
+        // Type radio group listener: show/hide box selection
+        rgDetailType.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.rbDetailTypeContent) {
+                loadDetailBoxList();
+                llDetailBoxSelection.setVisibility(View.VISIBLE);
+            } else {
+                llDetailBoxSelection.setVisibility(View.GONE);
+            }
+        });
+
+        // Box spinner selection listener
+        spDetailBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) {
+                    detailSelectedBoxEpc = "";
+                } else {
+                    detailSelectedBoxEpc = detailBoxList.get(position - 1).epc;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                detailSelectedBoxEpc = "";
+            }
+        });
 
         // Radar button listeners
         btnRadarStart.setOnClickListener(vv -> startLocated());
@@ -713,6 +761,34 @@ public class ItemDetailFragment extends KeyDwonFragment {
         etDetailShelf.setText(currentStockInInfo.shelf != null ? currentStockInInfo.shelf : "");
         etDetailRoom.setText(currentStockInInfo.room != null ? currentStockInInfo.room : "");
 
+        // Set current type radio button
+        String currentType = currentStockInInfo.type != null ? currentStockInInfo.type : "STANDALONE";
+        switch (currentType) {
+            case "BOX":
+                rbDetailTypeBox.setChecked(true);
+                llDetailBoxSelection.setVisibility(View.GONE);
+                break;
+            case "CONTENT":
+                rbDetailTypeContent.setChecked(true);
+                loadDetailBoxList();
+                // Preselect the current box
+                detailSelectedBoxEpc = currentStockInInfo.boxEpc != null ? currentStockInInfo.boxEpc : "";
+                if (!detailSelectedBoxEpc.isEmpty()) {
+                    for (int i = 0; i < detailBoxList.size(); i++) {
+                        if (detailBoxList.get(i).epc.equals(detailSelectedBoxEpc)) {
+                            spDetailBox.setSelection(i + 1);
+                            break;
+                        }
+                    }
+                }
+                llDetailBoxSelection.setVisibility(View.VISIBLE);
+                break;
+            default:
+                rbDetailTypeStandalone.setChecked(true);
+                llDetailBoxSelection.setVisibility(View.GONE);
+                break;
+        }
+
         llEditFields.setVisibility(View.VISIBLE);
         btnEdit.setText(R.string.stockin_cancel_edit);
 
@@ -732,6 +808,7 @@ public class ItemDetailFragment extends KeyDwonFragment {
     private void exitEditMode() {
         isEditMode = false;
         llEditFields.setVisibility(View.GONE);
+        llDetailBoxSelection.setVisibility(View.GONE);
         btnEdit.setText(R.string.stockin_edit);
 
         // Hide photo controls
@@ -749,11 +826,43 @@ public class ItemDetailFragment extends KeyDwonFragment {
         String shelf = etDetailShelf.getText().toString().trim();
         String room = etDetailRoom.getText().toString().trim();
 
+        // Get selected type
+        String newType;
+        if (rbDetailTypeBox.isChecked()) {
+            newType = "BOX";
+        } else if (rbDetailTypeContent.isChecked()) {
+            newType = "CONTENT";
+        } else {
+            newType = "STANDALONE";
+        }
+
+        // For CONTENT type, a box must be selected
+        String newBoxEpc = "";
+        if ("CONTENT".equals(newType)) {
+            if (detailSelectedBoxEpc.isEmpty()) {
+                mContext.showToast(R.string.detail_content_need_box);
+                return;
+            }
+            newBoxEpc = detailSelectedBoxEpc;
+        }
+
         // Build photo paths JSON
         String photoPathsJson = buildPhotoPathsJson();
 
-        int result = dbHelper.updateStockIn(currentStockInInfo.id,
-                shortId, desc, category, itemNumber, shelf, room, photoPathsJson);
+        int result;
+        String oldType = currentStockInInfo.type != null ? currentStockInInfo.type : "";
+        String oldBoxEpc = currentStockInInfo.boxEpc != null ? currentStockInInfo.boxEpc : "";
+
+        if (!oldType.equals(newType) || ("CONTENT".equals(newType) && !oldBoxEpc.equals(newBoxEpc))) {
+            // Type or box changed → use the full type-change update
+            result = dbHelper.updateStockInWithTypeChange(currentStockInInfo.id,
+                    shortId, desc, category, itemNumber, shelf, room,
+                    photoPathsJson, newType, newBoxEpc);
+        } else {
+            // No type/box change → use regular update
+            result = dbHelper.updateStockIn(currentStockInInfo.id,
+                    shortId, desc, category, itemNumber, shelf, room, photoPathsJson);
+        }
 
         if (result > 0) {
             mContext.showToast(R.string.stockin_saved);
@@ -762,6 +871,23 @@ public class ItemDetailFragment extends KeyDwonFragment {
         } else {
             mContext.showToast(R.string.stockin_save_fail);
         }
+    }
+
+    /**
+     * Load box list into the box selection spinner in edit mode.
+     */
+    private void loadDetailBoxList() {
+        detailBoxList.clear();
+        detailBoxList.addAll(dbHelper.getAllBoxes());
+        List<String> spinnerItems = new ArrayList<>();
+        spinnerItems.add(getString(R.string.detail_no_box_selected));
+        for (BoxInfo box : detailBoxList) {
+            spinnerItems.add(box.toString());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(mContext,
+                android.R.layout.simple_spinner_item, spinnerItems);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spDetailBox.setAdapter(adapter);
     }
 
     private String buildPhotoPathsJson() {

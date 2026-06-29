@@ -5,8 +5,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +44,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Warehouse Management Fragment (仓库管理界面).
@@ -94,6 +99,12 @@ public class WarehouseFragment extends KeyDwonFragment {
 
     // Flat list of all filtered items (for grid view)
     private List<DisplayItem> flatFilteredItems = new ArrayList<>();
+
+    // Image caching & async loading for grid view thumbnails
+    private static LruCache<String, Bitmap> imageCache;
+    private static boolean imageCacheInitialized = false;
+    private final ExecutorService imageLoader = Executors.newSingleThreadExecutor();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -170,6 +181,26 @@ public class WarehouseFragment extends KeyDwonFragment {
         rvGridView.setLayoutManager(gridLayoutManager);
         gridAdapter = new GridAdapter();
         rvGridView.setAdapter(gridAdapter);
+        rvGridView.setHasFixedSize(true);
+        rvGridView.setItemViewCacheSize(20);
+        rvGridView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    // Reload visible items when scrolling stops
+                    RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();
+                    if (lm instanceof GridLayoutManager) {
+                        GridLayoutManager glm = (GridLayoutManager) lm;
+                        int first = glm.findFirstVisibleItemPosition();
+                        int last = glm.findLastVisibleItemPosition();
+                        for (int i = first; i <= last; i++) {
+                            gridAdapter.notifyItemChanged(i);
+                        }
+                    }
+                }
+            }
+        });
+        initImageCache();
     }
 
     // ==================== View Toggle ====================
@@ -450,7 +481,7 @@ public class WarehouseFragment extends KeyDwonFragment {
         String fileName = pathRoot + File.separator + "Warehouse_" + StringUtils.getTimeString() + ".xls";
         File file = new File(fileName);
 
-        String[] header = {"物品名称", "TID", "物品类型", "所属箱子", "当前状态", "最近一次借还时间", "最近借出人"};
+        String[] header = {"物品名称", "TID", "物品类型", "所属箱子", "当前状态", "最近一次借还时间", "最近借还人"};
         ExcelUtils eu = new ExcelUtils();
         eu.createExcel(file, header);
 
@@ -653,7 +684,7 @@ public class WarehouseFragment extends KeyDwonFragment {
             // Name
             holder.tvName.setText(item.name);
 
-            // Photo
+            // Photo (async with cache)
             loadThumbnail(holder.ivPhoto, item.photoPath);
 
             // Borrow status badge
@@ -667,6 +698,15 @@ public class WarehouseFragment extends KeyDwonFragment {
 
             // Click to open detail
             holder.itemView.setOnClickListener(v -> mContext.openItemDetail(item.epc));
+        }
+
+        @Override
+        public void onViewRecycled(@NonNull GridVH holder) {
+            super.onViewRecycled(holder);
+            // Clear image immediately to free memory and prevent stale display
+            holder.ivPhoto.setImageDrawable(null);
+            holder.ivPhoto.setBackgroundColor(0xFFEEEEEE);
+            holder.ivPhoto.setTag(null);
         }
 
         @Override
@@ -687,31 +727,88 @@ public class WarehouseFragment extends KeyDwonFragment {
         }
     }
 
+    /**
+     * Load thumbnail image with memory caching and async decoding.
+     * Falls back to placeholder if no photo or decode fails.
+     */
     private void loadThumbnail(ImageView iv, String photoPath) {
-        if (photoPath != null && !photoPath.isEmpty()) {
-            File f = new File(photoPath);
-            if (f.exists()) {
-                try {
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(photoPath, options);
-                    int sampleSize = 1;
-                    while (options.outWidth / sampleSize > 200) sampleSize *= 2;
-                    options.inJustDecodeBounds = false;
-                    options.inSampleSize = sampleSize;
-                    Bitmap bmp = BitmapFactory.decodeFile(photoPath, options);
-                    if (bmp != null) {
-                        iv.setImageBitmap(bmp);
-                        return;
-                    }
-                } catch (Exception e) {
-                    // fall through to placeholder
-                }
-            }
+        if (photoPath == null || photoPath.isEmpty()) {
+            iv.setBackgroundColor(0xFFEEEEEE);
+            iv.setImageDrawable(null);
+            return;
         }
-        // Default placeholder
+
+        String cacheKey = photoPath;
+
+        // 1. Check memory cache first (UI thread, instant)
+        Bitmap cached = imageCache.get(cacheKey);
+        if (cached != null && !cached.isRecycled()) {
+            iv.setBackgroundColor(0);
+            iv.setImageBitmap(cached);
+            return;
+        }
+
+        // 2. Show placeholder while loading
         iv.setBackgroundColor(0xFFEEEEEE);
         iv.setImageDrawable(null);
+
+        // 3. Tag the view so callback can verify it's still for this item
+        iv.setTag(cacheKey);
+
+        // 4. Decode bitmap on background thread
+        imageLoader.submit(() -> {
+            Bitmap bmp = decodeThumbnailFromFile(photoPath);
+            if (bmp != null) {
+                imageCache.put(cacheKey, bmp);
+                mainHandler.post(() -> {
+                    // Only apply if the view hasn't been recycled to another item
+                    if (cacheKey.equals(iv.getTag())) {
+                        iv.setBackgroundColor(0);
+                        iv.setImageBitmap(bmp);
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * Decode a thumbnail bitmap from file with down-sampling.
+     * Runs on background thread.
+     */
+    private Bitmap decodeThumbnailFromFile(String photoPath) {
+        try {
+            File f = new File(photoPath);
+            if (!f.exists()) return null;
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(photoPath, options);
+            int sampleSize = 1;
+            while (options.outWidth / sampleSize > 200) sampleSize *= 2;
+            options.inJustDecodeBounds = false;
+            options.inSampleSize = sampleSize;
+            options.inPreferredConfig = Bitmap.Config.RGB_565;
+            return BitmapFactory.decodeFile(photoPath, options);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Initialize the LRU bitmap cache (called once).
+     */
+    private void initImageCache() {
+        if (!imageCacheInitialized) {
+            int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+            int cacheSize = maxMemory / 8;
+            imageCache = new LruCache<String, Bitmap>(cacheSize) {
+                @Override
+                protected int sizeOf(String key, Bitmap bitmap) {
+                    return bitmap.getByteCount() / 1024;
+                }
+            };
+            imageCacheInitialized = true;
+        }
     }
 
     private String truncateEpc(String epc) {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">SO设备管理</string>
+    <string name="app_name">简库</string>
     <string name="dashboard_title">UHF RFID Tools</string>
     <string name="dashboard_subtitle">Select a function to continue</string>
     <string name="action_settings">Settings</string>
@@ -1627,6 +1627,15 @@ r</string>
     <string name="stockin_edit_title">Edit Item</string>
     <string name="stockin_children_count">%d items</string>
     <string name="power_label">Power: %d dBm</string>
+
+    <!-- Detail Edit - Item Type Modification -->
+    <string name="detail_type_label">Item Type</string>
+    <string name="detail_type_standalone">Standalone</string>
+    <string name="detail_type_box">Box</string>
+    <string name="detail_type_content">Content</string>
+    <string name="detail_select_box">Select Box</string>
+    <string name="detail_no_box_selected">-- Select a box --</string>
+    <string name="detail_content_need_box">Please select a box for content type</string>
 
     <!-- Warehouse Management (仓库管理) -->
     <string name="tab_warehouse">Warehouse</string>
