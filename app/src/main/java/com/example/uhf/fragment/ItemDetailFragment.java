@@ -53,8 +53,10 @@ import com.example.uhf.db.CheckoutLogInfo;
 import com.example.uhf.db.ContentInfo;
 import com.example.uhf.db.DatabaseHelper;
 import com.example.uhf.db.StockInInfo;
+import com.example.uhf.tools.UHFConstants;
 import com.example.uhf.view.CircleSeekBar;
 import com.example.uhf.view.RadarView;
+import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.deviceapi.entity.RadarLocationEntity;
 import com.rscja.deviceapi.interfaces.IUHF;
 import com.rscja.deviceapi.interfaces.IUHFRadarLocationCallback;
@@ -1008,7 +1010,7 @@ public class ItemDetailFragment extends KeyDwonFragment {
 
         radarView.clearPanel();
 
-        boolean result = mContext.mReader.startRadarLocation(mContext, itemEpc, IUHF.Bank_TID, 0, new IUHFRadarLocationCallback() {
+        boolean result = mContext.getReader() != null && mContext.getReader().startRadarLocation(mContext, itemEpc, UHFConstants.BANK_TID, 0, new IUHFRadarLocationCallback() {
             @Override
             public void getLocationValue(final List<RadarLocationEntity> list) {
                 radarView.bindingData(list, itemEpc);
@@ -1046,7 +1048,8 @@ public class ItemDetailFragment extends KeyDwonFragment {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 int p = 35 - progress;
-                mContext.mReader.setDynamicDistance(p);
+                RFIDWithUHFUART reader = mContext.getReader();
+                if (reader != null) reader.setDynamicDistance(p);
             }
         });
 
@@ -1062,7 +1065,7 @@ public class ItemDetailFragment extends KeyDwonFragment {
         if (!inventoryFlag) return;
         radarView.stopRadar();
 
-        boolean result = mContext.mReader.stopRadarLocation();
+        boolean result = mContext.getReader() != null && mContext.getReader().stopRadarLocation();
         if (!result) {
             Log.e(TAG, "stopLocated failure");
             Toast.makeText(mContext, R.string.uhf_msg_inventory_stop_fail, Toast.LENGTH_SHORT).show();

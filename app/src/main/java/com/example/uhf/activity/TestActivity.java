@@ -36,10 +36,10 @@ import com.example.uhf.tools.CheckUtils;
 import com.example.uhf.tools.NumberTool;
 import com.example.uhf.tools.StringUtils;
 import com.example.uhf.tools.UIHelper;
+import com.example.uhf.tools.EmulatorDetector;
 import com.rscja.deviceapi.RFIDWithISO14443A;
 import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.deviceapi.entity.UHFTAGInfo;
-import com.rscja.deviceapi.exception.ConfigurationException;
 import com.rscja.deviceapi.interfaces.IUHFInventoryCallback;
 
 import java.util.ArrayList;
@@ -97,12 +97,20 @@ public class TestActivity extends Activity {
         LvTags.setAdapter(adapter);
         tv_count.setText(tagList.size()+"");
         tv_total.setText(total+"");
-        try {
-            rfidWithUHFUART= RFIDWithUHFUART.getInstance();
-        } catch (ConfigurationException e) {
-
+        if (EmulatorDetector.isEmulator()) {
+            UIHelper.ToastMessage(this, "模拟器模式：RFID功能不可用");
+        } else {
+            try {
+                rfidWithUHFUART = RFIDWithUHFUART.getInstance();
+            } catch (Throwable e) {
+                Log.e("TestActivity", "RFID init error", e);
+            }
+            if (rfidWithUHFUART != null) {
+                new InitTask().execute();
+            } else {
+                UIHelper.ToastMessage(this, "RFID初始化失败");
+            }
         }
-       new InitTask().execute();
 
     }
 
@@ -133,6 +141,7 @@ public class TestActivity extends Activity {
     }
 
     private void readTag() {
+        if (rfidWithUHFUART == null) return;
         if (!rfidWithUHFUART.isInventorying()) {// 识别标签
             clearData();
             rfidWithUHFUART.setInventoryCallback(new IUHFInventoryCallback() {
@@ -256,7 +265,7 @@ public class TestActivity extends Activity {
                     }
                 }
 
-                if (rfidWithUHFUART.isInventorying()) {
+                if (rfidWithUHFUART != null && rfidWithUHFUART.isInventorying()) {
                     playSound(1);
                     queue.poll();
                     consumption++;
@@ -301,6 +310,7 @@ public class TestActivity extends Activity {
         @Override
         protected Boolean doInBackground(String... params) {
             // TODO Auto-generated method stub
+            if (rfidWithUHFUART == null) return false;
             return rfidWithUHFUART.init(TestActivity.this);
         }
 

@@ -19,6 +19,7 @@ import android.widget.RadioButton;
 import com.example.uhf.R;
 import com.example.uhf.activity.UHFMainActivity;
 import com.example.uhf.tools.StringUtils;
+import com.example.uhf.tools.UHFConstants;
 import com.example.uhf.tools.UIHelper;
 import com.rscja.deviceapi.RFIDWithUHFUART;
 
@@ -145,7 +146,7 @@ public class UHFKillFragment extends KeyDwonFragment implements OnClickListener 
                 int filterPtr = StringUtils.toInt(etPtr_filter.getText().toString(), -1);
                 int filterCnt = StringUtils.toInt(etLen_filter.getText().toString(), -1);
                 String filterData = etData_filter.getText().toString();
-                int filterBank = RFIDWithUHFUART.Bank_EPC;
+                int filterBank = UHFConstants.BANK_EPC;
                 if (filterPtr < 0) {
                     UIHelper.ToastMessage(mContext, R.string.uhf_msg_filter_addr_must_decimal);
                     return;
@@ -164,15 +165,16 @@ public class UHFKillFragment extends KeyDwonFragment implements OnClickListener 
                     }
                 }
                 if (rbEPC_filter.isChecked()) {
-                    filterBank = RFIDWithUHFUART.Bank_EPC;
+                    filterBank = UHFConstants.BANK_EPC;
                 } else if (rbTID_filter.isChecked()) {
-                    filterBank = RFIDWithUHFUART.Bank_TID;
+                    filterBank = UHFConstants.BANK_TID;
                 } else if (rbUser_filter.isChecked()) {
-                    filterBank = RFIDWithUHFUART.Bank_USER;
+                    filterBank = UHFConstants.BANK_USER;
                 }
 
                 //-----------------------------------------------------
-                if (mContext.mReader.killTag(strPWD, filterBank, filterPtr, filterCnt, filterData)) {
+                RFIDWithUHFUART reader = mContext.getReader();
+                if (reader != null && reader.killTag(strPWD, filterBank, filterPtr, filterCnt, filterData)) {
                     UIHelper.ToastMessage(mContext, R.string.rfid_mgs_kill_succ);
                     mContext.playSound(1);
                 } else {
@@ -180,7 +182,8 @@ public class UHFKillFragment extends KeyDwonFragment implements OnClickListener 
                     mContext.playSound(2);
                 }
             } else {
-                if (mContext.mReader.killTag(strPWD)) {
+                RFIDWithUHFUART reader = mContext.getReader();
+                if (reader != null && reader.killTag(strPWD)) {
                     UIHelper.ToastMessage(mContext, getString(R.string.rfid_mgs_kill_succ));
                     mContext.playSound(1);
                 } else {

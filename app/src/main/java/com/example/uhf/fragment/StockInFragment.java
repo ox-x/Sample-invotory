@@ -42,6 +42,7 @@ import com.example.uhf.db.ContentInfo;
 import com.example.uhf.db.DatabaseHelper;
 import com.example.uhf.db.DisplayItem;
 import com.example.uhf.db.StockInInfo;
+import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.deviceapi.entity.UHFTAGInfo;
 
 import java.io.File;
@@ -158,7 +159,8 @@ public class StockInFragment extends KeyDwonFragment {
         }
 
         // Refresh current power level
-        int power = mContext.mReader.getPower();
+        RFIDWithUHFUART reader = mContext.getReader();
+        int power = reader != null ? reader.getPower() : -1;
         if (power > 0 && power <= 30) {
             seekBarPower.setProgress(power - 1);
             tvPower.setText(getString(R.string.power_label, power));
@@ -170,7 +172,8 @@ public class StockInFragment extends KeyDwonFragment {
      */
     private void initPowerSeekBar() {
         // Read current power and set initial position
-        int power = mContext.mReader.getPower();
+        RFIDWithUHFUART reader = mContext.getReader();
+        int power = reader != null ? reader.getPower() : -1;
         if (power > 0 && power <= 30) {
             seekBarPower.setProgress(power - 1);
             tvPower.setText(getString(R.string.power_label, power));
@@ -189,7 +192,8 @@ public class StockInFragment extends KeyDwonFragment {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 int powerValue = seekBar.getProgress() + 1;
-                if (mContext.mReader.setPower(powerValue)) {
+                RFIDWithUHFUART reader = mContext.getReader();
+                if (reader != null && reader.setPower(powerValue)) {
                     Log.d(TAG, "Power set to " + powerValue + " dBm");
                 } else {
                     Log.e(TAG, "Failed to set power to " + powerValue);
@@ -288,7 +292,8 @@ public class StockInFragment extends KeyDwonFragment {
     // ==================== Scan ====================
 
     private void scanTag() {
-        UHFTAGInfo tag = mContext.mReader.inventorySingleTag();
+        RFIDWithUHFUART reader = mContext.getReader();
+        UHFTAGInfo tag = reader != null ? reader.inventorySingleTag() : null;
         if (tag != null) {
             String tid = getTagId(tag);
 

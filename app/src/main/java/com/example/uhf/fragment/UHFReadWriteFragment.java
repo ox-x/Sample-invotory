@@ -21,6 +21,7 @@ import android.widget.Spinner;
 import com.example.uhf.R;
 import com.example.uhf.activity.UHFMainActivity;
 import com.example.uhf.tools.StringUtils;
+import com.example.uhf.tools.UHFConstants;
 import com.example.uhf.tools.UIHelper;
 import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.utility.StringUtility;
@@ -210,15 +211,18 @@ public class UHFReadWriteFragment extends KeyDwonFragment implements OnClickList
             int filterPtr = Integer.parseInt(etPtr_filter.getText().toString());
             String filterData = etData_filter.getText().toString();
             int filterCnt = Integer.parseInt(etLen_filter.getText().toString());
-            int filterBank = RFIDWithUHFUART.Bank_EPC;
+            int filterBank = UHFConstants.BANK_EPC;
             if (rbEPC_filter.isChecked()) {
-                filterBank = RFIDWithUHFUART.Bank_EPC;
+                filterBank = UHFConstants.BANK_EPC;
             } else if (rbTID_filter.isChecked()) {
-                filterBank = RFIDWithUHFUART.Bank_TID;
+                filterBank = UHFConstants.BANK_TID;
             } else if (rbUser_filter.isChecked()) {
-                filterBank = RFIDWithUHFUART.Bank_USER;
+                filterBank = UHFConstants.BANK_USER;
             }
-            String data = mContext.mReader.readData(pwdStr,
+            String data = null;
+            RFIDWithUHFUART reader = mContext.getReader();
+            if (reader != null) {
+                data = reader.readData(pwdStr,
                     filterBank,
                     filterPtr,
                     filterCnt,
@@ -235,19 +239,20 @@ public class UHFReadWriteFragment extends KeyDwonFragment implements OnClickList
                 mContext.showToast(R.string.uhf_msg_read_data_fail);
             }
         } else {
-            String data = mContext.mReader.readData(pwdStr,
+            RFIDWithUHFUART reader2 = mContext.getReader();
+            String data2 = reader2 != null ? reader2.readData(pwdStr,
                     Bank,
                     Integer.parseInt(ptrStr),
-                    Integer.parseInt(cntStr)
-            );
-            if (!TextUtils.isEmpty(data)) {
+                    Integer.parseInt(cntStr)) : null;
+            if (!TextUtils.isEmpty(data2)) {
                 result = true;
-                EtData.setText(data);
+                EtData.setText(data2);
             } else {
                 result = false;
                 mContext.showToast(R.string.uhf_msg_read_data_fail);
             }
         }
+    }
         if (result) {
             mContext.playSound(1);
         } else {
@@ -327,21 +332,22 @@ public class UHFReadWriteFragment extends KeyDwonFragment implements OnClickList
             int filterPtr = Integer.parseInt(etPtr_filter.getText().toString());
             String filterData = etData_filter.getText().toString();
             int filterCnt = Integer.parseInt(etLen_filter.getText().toString());
-            int filterBank = RFIDWithUHFUART.Bank_EPC;
+            int filterBank = UHFConstants.BANK_EPC;
             if (rbEPC_filter.isChecked()) {
-                filterBank = RFIDWithUHFUART.Bank_EPC;
+                filterBank = UHFConstants.BANK_EPC;
             } else if (rbTID_filter.isChecked()) {
-                filterBank = RFIDWithUHFUART.Bank_TID;
+                filterBank = UHFConstants.BANK_TID;
             } else if (rbUser_filter.isChecked()) {
-                filterBank = RFIDWithUHFUART.Bank_USER;
+                filterBank = UHFConstants.BANK_USER;
             }
 
             if (writeLen > 32) {
                 int count = writeLen / 32 + writeLen % 32;
                 int currTotal = writeLen;
                 int cuurStart = writePtr;
+                RFIDWithUHFUART reader = mContext.getReader();
                 for (int k = 0; k < count; k++) {
-                    if (mContext.mReader.writeData(strPWD,
+                    if (reader != null && reader.writeData(strPWD,
                             filterBank,
                             filterPtr,
                             filterCnt,
@@ -361,7 +367,8 @@ public class UHFReadWriteFragment extends KeyDwonFragment implements OnClickList
                     }
                 }
             } else {
-                if (mContext.mReader.writeData(strPWD,
+                RFIDWithUHFUART reader = mContext.getReader();
+                if (reader != null && reader.writeData(strPWD,
                         filterBank,
                         filterPtr,
                         filterCnt,
@@ -384,8 +391,9 @@ public class UHFReadWriteFragment extends KeyDwonFragment implements OnClickList
                 int count = writeLen / 32 + writeLen % 32;
                 int currTotal = writeLen;
                 int cuurStart = writePtr;
+                RFIDWithUHFUART reader = mContext.getReader();
                 for (int k = 0; k < count; k++) {
-                    if (mContext.mReader.writeData(strPWD,
+                    if (reader != null && reader.writeData(strPWD,
                             Bank,
                             cuurStart,
                             Math.min(currTotal, 32),
@@ -401,7 +409,8 @@ public class UHFReadWriteFragment extends KeyDwonFragment implements OnClickList
                     }
                 }
             } else {
-                if (mContext.mReader.writeData(strPWD,
+                RFIDWithUHFUART reader = mContext.getReader();
+                if (reader != null && reader.writeData(strPWD,
                         Bank,
                         Integer.parseInt(strPtr),
                         Integer.valueOf(cntStr), strData)

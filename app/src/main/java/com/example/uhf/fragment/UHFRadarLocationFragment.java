@@ -23,9 +23,11 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.uhf.R;
 import com.example.uhf.activity.UHFMainActivity;
+import com.example.uhf.tools.UHFConstants;
 import com.example.uhf.tools.UIHelper;
 import com.example.uhf.view.CircleSeekBar;
 import com.example.uhf.view.RadarView;
+import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.deviceapi.entity.RadarLocationEntity;
 import com.rscja.deviceapi.entity.UHFTAGInfo;
 import com.rscja.deviceapi.interfaces.IUHF;
@@ -124,7 +126,7 @@ public class UHFRadarLocationFragment extends KeyDwonFragment {
         radarView.clearPanel();
         targetEpc = etEPC.getText().toString();
 
-        boolean result = mContext.mReader.startRadarLocation(mContext, targetEpc, IUHF.Bank_TID, 0, new IUHFRadarLocationCallback() {
+        boolean result = mContext.getReader() != null && mContext.getReader().startRadarLocation(mContext, targetEpc, UHFConstants.BANK_TID, 0, new IUHFRadarLocationCallback() {
             @Override
             public void getLocationValue(final List<RadarLocationEntity> list) {
 //                Log.i(TAG, " list.size=" + list.size());
@@ -170,7 +172,8 @@ public class UHFRadarLocationFragment extends KeyDwonFragment {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 int p = 35 - progress;
-                mContext.mReader.setDynamicDistance(p);
+                RFIDWithUHFUART reader = mContext.getReader();
+                if (reader != null) reader.setDynamicDistance(p);
                 Log.d(TAG, "  onStopTrackingTouch  p=" + p + "  progress=" + progress);
                 //  Toast.makeText(getContext(),"功率："+progress,Toast.LENGTH_SHORT).show();
             }
@@ -189,7 +192,8 @@ public class UHFRadarLocationFragment extends KeyDwonFragment {
         if (!inventoryFlag) return;
         radarView.stopRadar();  // 停止雷达扫描动画
 
-        boolean result = mContext.mReader.stopRadarLocation();
+        RFIDWithUHFUART reader = mContext.getReader();
+        boolean result = reader != null && reader.stopRadarLocation();
         if (!result) {
             //停止失败
             Log.e(TAG, "stopLocated failure");

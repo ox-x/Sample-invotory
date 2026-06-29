@@ -35,6 +35,7 @@ import com.example.uhf.activity.UHFMainActivity;
 import com.example.uhf.tools.CheckUtils;
 import com.example.uhf.tools.NumberTool;
 import com.example.uhf.tools.StringUtils;
+import com.example.uhf.tools.UHFConstants;
 import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.deviceapi.entity.InventoryParameter;
 import com.rscja.deviceapi.entity.UHFTAGInfo;
@@ -102,7 +103,10 @@ public class UHFReadTagFragment extends KeyDwonFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mContext.mReader.setInventoryCallback(null);
+        RFIDWithUHFUART reader = mContext.getReader();
+        if (reader != null) {
+            reader.setInventoryCallback(null);
+        }
         Log.i(TAG, "onDestroyView");
         if (playSoundThread != null) {
             playSoundThread.stopPlay();
@@ -201,13 +205,13 @@ public class UHFReadTagFragment extends KeyDwonFragment {
         btnSetFilter.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                int filterBank = RFIDWithUHFUART.Bank_EPC;
+                int filterBank = UHFConstants.BANK_EPC;
                 if (rbEPC.isChecked()) {
-                    filterBank = RFIDWithUHFUART.Bank_EPC;
+                    filterBank = UHFConstants.BANK_EPC;
                 } else if (rbTID.isChecked()) {
-                    filterBank = RFIDWithUHFUART.Bank_TID;
+                    filterBank = UHFConstants.BANK_TID;
                 } else if (rbUser.isChecked()) {
-                    filterBank = RFIDWithUHFUART.Bank_USER;
+                    filterBank = UHFConstants.BANK_USER;
                 }
                 etLen.getText().toString();
                 if (etLen.getText().toString().isEmpty()) {
@@ -229,7 +233,8 @@ public class UHFReadTagFragment extends KeyDwonFragment {
                         return;
                     }
 
-                    if (mContext.mReader.setFilter(filterBank, ptr, len, data)) {
+                    RFIDWithUHFUART reader = mContext.getReader();
+                    if (reader != null && reader.setFilter(filterBank, ptr, len, data)) {
                         mContext.showToast(R.string.uhf_msg_set_filter_succ);
                     } else {
                         mContext.showToast(R.string.uhf_msg_set_filter_fail);
@@ -237,9 +242,10 @@ public class UHFReadTagFragment extends KeyDwonFragment {
                 } else {
                     //禁用过滤
                     String dataStr = "";
-                    if (mContext.mReader.setFilter(RFIDWithUHFUART.Bank_EPC, 0, 0, dataStr)
-                            && mContext.mReader.setFilter(RFIDWithUHFUART.Bank_TID, 0, 0, dataStr)
-                            && mContext.mReader.setFilter(RFIDWithUHFUART.Bank_USER, 0, 0, dataStr)) {
+                    RFIDWithUHFUART reader = mContext.getReader();
+                    if (reader != null && reader.setFilter(UHFConstants.BANK_EPC, 0, 0, dataStr)
+                            && reader.setFilter(UHFConstants.BANK_TID, 0, 0, dataStr)
+                            && reader.setFilter(UHFConstants.BANK_USER, 0, 0, dataStr)) {
                         mContext.showToast(R.string.msg_disable_succ);
                     } else {
                         mContext.showToast(R.string.msg_disable_fail);
@@ -284,7 +290,8 @@ public class UHFReadTagFragment extends KeyDwonFragment {
                 if (isChecked) {
                     //mContext.mReader.setEPCAndTamperAlarmMode();
                 } else {
-                    mContext.mReader.setEPCMode();
+                    RFIDWithUHFUART reader = mContext.getReader();
+                    if (reader != null) reader.setEPCMode();
                 }
             }
         });
@@ -368,18 +375,22 @@ public class UHFReadTagFragment extends KeyDwonFragment {
             switch (inventoryFlag) {
                 case 0:// 单步
                     startTime = SystemClock.elapsedRealtime();
-                    UHFTAGInfo uhftagInfo = mContext.mReader.inventorySingleTag();
+                    UHFTAGInfo uhftagInfo = mContext.getReader() != null ? mContext.getReader().inventorySingleTag() : null;
                     if (uhftagInfo != null) {
                         addDataToList(uhftagInfo);
                         setTotalTime();
                         mContext.playSound(1);
                     } else {
                         mContext.showToast(R.string.uhf_msg_inventory_fail);
-//					mContext.playSound(2);
                     }
                     break;
                 case 1:// 单标签循环
-                    mContext.mReader.setInventoryCallback(new IUHFInventoryCallback() {
+                    RFIDWithUHFUART reader = mContext.getReader();
+                    if (reader == null) {
+                        mContext.showToast(R.string.uhf_msg_inventory_fail);
+                        break;
+                    }
+                    reader.setInventoryCallback(new IUHFInventoryCallback() {
                         @Override
                         public void callback(UHFTAGInfo uhftagInfo) {
                             Message msg = handler.obtainMessage();
@@ -393,7 +404,7 @@ public class UHFReadTagFragment extends KeyDwonFragment {
 
                     InventoryParameter inventoryParameter = new InventoryParameter();
                     inventoryParameter.setResultData(new InventoryParameter.ResultData().setNeedPhase(cbPhase.isChecked()));
-                    if (mContext.mReader.startInventoryTag(inventoryParameter)) {
+                    if (reader.startInventoryTag(inventoryParameter)) {
                         //--
                         String time = etTime.getText().toString();
                         if (time.length() > 0 && time.startsWith(".")) {
@@ -453,7 +464,8 @@ public class UHFReadTagFragment extends KeyDwonFragment {
         if (mContext.loopFlag) {
             mContext.loopFlag = false;
             setViewEnabled(true);
-            if (mContext.mReader.stopInventory()) {
+            RFIDWithUHFUART reader = mContext.getReader();
+            if (reader != null && reader.stopInventory()) {
                 BtInventory.setText(mContext.getString(R.string.btInventory));
             } else {
                 mContext.showToast(R.string.uhf_msg_inventory_stop_fail);

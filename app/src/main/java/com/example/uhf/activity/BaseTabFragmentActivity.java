@@ -23,7 +23,10 @@ import com.example.uhf.FileUtils;
 import com.example.uhf.R;
 import com.example.uhf.fragment.KeyDwonFragment;
 import com.example.uhf.fragment.UHFReadTagFragment;
+import com.example.uhf.tools.EmulatorDetector;
+import com.example.uhf.tools.UHFConstants;
 import com.example.uhf.tools.UIHelper;
+import com.example.uhf.tools.VirtualUHFReader;
 import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.utility.FileUtility;
 import com.rscja.utility.StringUtility;
@@ -40,8 +43,10 @@ import java.util.Date;
  */
 public class BaseTabFragmentActivity extends FragmentActivity {
 
+    private static final String TAG = "BaseTabFragmentActivity";
 
-    public RFIDWithUHFUART mReader;
+    public Object mReader;
+    public boolean isEmulatorMode = false;
     public KeyDwonFragment currentFragment = null;
     public int TidLen = 6;
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
@@ -66,12 +71,20 @@ public class BaseTabFragmentActivity extends FragmentActivity {
     }
 
     public void initUHF() {
+        // 检测是否运行在模拟器环境
+        if (EmulatorDetector.isEmulator()) {
+            isEmulatorMode = true;
+            toastMessage("模拟器模式: RFID硬件不可用，UI功能可正常测试");
+            Log.i(TAG, "Emulator mode activated - RFID hardware not available");
+            return;
+        }
+
         try {
             mReader = RFIDWithUHFUART.getInstance();
-        } catch (Exception ex) {
-
-            toastMessage(ex.getMessage());
-
+        } catch (Throwable ex) {
+            // 捕获所有异常/错误（包括 UnsatisfiedLinkError 等）
+            Log.e(TAG, "RFID init failed: " + ex.getMessage(), ex);
+            toastMessage("RFID初始化失败: " + ex.getMessage());
             return;
         }
 
@@ -157,8 +170,13 @@ public class BaseTabFragmentActivity extends FragmentActivity {
 
         @Override
         protected Boolean doInBackground(String... params) {
-            // TODO Auto-generated method stub
-            return mReader.init(BaseTabFragmentActivity.this);
+            try {
+                RFIDWithUHFUART reader = (RFIDWithUHFUART) mReader;
+                return reader.init(BaseTabFragmentActivity.this);
+            } catch (Exception e) {
+                Log.e(TAG, "init failed", e);
+                return false;
+            }
         }
 
         @Override
@@ -168,14 +186,17 @@ public class BaseTabFragmentActivity extends FragmentActivity {
             if (!result) {
                 Toast.makeText(BaseTabFragmentActivity.this, "init fail", Toast.LENGTH_SHORT).show();
             } else {
-                // Default to EPC+TID mode so TID is available as unique identifier
-                mReader.setEPCAndTIDMode();
+                try {
+                    RFIDWithUHFUART reader = (RFIDWithUHFUART) mReader;
+                    reader.setEPCAndTIDMode();
+                } catch (Exception e) {
+                    Log.e(TAG, "setMode failed", e);
+                }
             }
         }
 
         @Override
         protected void onPreExecute() {
-            // TODO Auto-generated method stub
             super.onPreExecute();
             mypDialog = new ProgressDialog(BaseTabFragmentActivity.this);
             mypDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -196,14 +217,47 @@ public class BaseTabFragmentActivity extends FragmentActivity {
         return false;
     }
 
-    public void getUHFVersion() {
-        if (mReader != null) {
-            String rfidVer = mReader.getVersion();
-            String hardwareVersion = mReader.getHardwareVersion();
-            String version="Software version:"+rfidVer+" \nHardware Version:"+hardwareVersion;
+    /**
+     * 检查 RFID 阅读器是否就绪（非模拟器模式且已成功初始化）。
+     * 如果未就绪会自动提示用户。
+     */
+    public boolean isReaderReady() {
+        if (isEmulatorMode) {
+            return false;
+        }
+        if (mReader == null) {
+            Toast.makeText(this, R.string.uhf_msg_inventory_fail, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
 
-            UIHelper.alert(this, R.string.action_uhf_ver,
-                    version, R.drawable.webtext);
+    /**
+     * 获取 RFID 阅读器（仅当就绪时），否则返回 null。
+     */
+    public RFIDWithUHFUART getReader() {
+        if (!isEmulatorMode && mReader instanceof RFIDWithUHFUART) {
+            return (RFIDWithUHFUART) mReader;
+        }
+        return null;
+    }
+
+    public void getUHFVersion() {
+        if (isEmulatorMode) {
+            String version="Software version:" + UHFConstants.EMULATOR_VERSION +
+                    " \nHardware Version:" + UHFConstants.EMULATOR_HARDWARE_VERSION;
+            UIHelper.alert(this, R.string.action_uhf_ver, version, R.drawable.webtext);
+        } else if (mReader != null) {
+            try {
+                RFIDWithUHFUART reader = (RFIDWithUHFUART) mReader;
+                String rfidVer = reader.getVersion();
+                String hardwareVersion = reader.getHardwareVersion();
+                String version = "Software version:" + rfidVer + " \nHardware Version:" + hardwareVersion;
+                UIHelper.alert(this, R.string.action_uhf_ver,
+                        version, R.drawable.webtext);
+            } catch (Exception e) {
+                toastMessage(getString(R.string.uhf_msg_read_frequency_fail));
+            }
         }
     }
 

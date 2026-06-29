@@ -17,6 +17,7 @@ import android.widget.Spinner;
 import com.example.uhf.R;
 import com.example.uhf.activity.UHFMainActivity;
 import com.example.uhf.tools.StringUtils;
+import com.example.uhf.tools.UHFConstants;
 import com.example.uhf.tools.UIHelper;
 
 import com.rscja.deviceapi.RFIDWithUHFUART;
@@ -203,15 +204,16 @@ public class BlockWriteFragment extends KeyDwonFragment implements View.OnClickL
             int filterPtr = Integer.parseInt(etPtr_filter_wt.getText().toString());
             String filterData = etData_filter_wt.getText().toString();
             int filterCnt = Integer.parseInt(etLen_filter_wt.getText().toString());
-            int filterBank = RFIDWithUHFUART.Bank_EPC;
+            int filterBank = UHFConstants.BANK_EPC;
             if (rbEPC_filter_wt.isChecked()) {
-                filterBank = RFIDWithUHFUART.Bank_EPC;
+                filterBank = UHFConstants.BANK_EPC;
             } else if (rbTID_filter_wt.isChecked()) {
-                filterBank = RFIDWithUHFUART.Bank_TID;
+                filterBank = UHFConstants.BANK_TID;
             } else if (rbUser_filter_wt.isChecked()) {
-                filterBank = RFIDWithUHFUART.Bank_USER;
+                filterBank = UHFConstants.BANK_USER;
             }
-            boolean r = mContext.mReader.blockWriteData(strPWD,
+            RFIDWithUHFUART reader = mContext.getReader();
+            boolean r = reader != null && reader.blockWriteData(strPWD,
                     filterBank,
                     filterPtr,
                     filterCnt,
@@ -228,7 +230,8 @@ public class BlockWriteFragment extends KeyDwonFragment implements View.OnClickL
             }
 
         } else {
-            boolean r = mContext.mReader.blockWriteData(strPWD,
+            RFIDWithUHFUART reader = mContext.getReader();
+            boolean r = reader != null && reader.blockWriteData(strPWD,
                     RFIDWithUHFUART.Bank_EPC,
                     0,
                     0,

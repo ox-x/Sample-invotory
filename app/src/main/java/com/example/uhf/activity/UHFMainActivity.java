@@ -42,6 +42,7 @@ import com.example.uhf.fragment.UHFSetFragment;
 import com.example.uhf.fragment.UHFUpgradeFragment;
 import com.example.uhf.tools.ExportExcelAsyncTask;
 import com.example.uhf.tools.UIHelper;
+import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.deviceapi.entity.UHFTAGInfo;
 
 import java.util.ArrayList;
@@ -193,8 +194,13 @@ public class UHFMainActivity extends BaseTabFragmentActivity {
     protected void onDestroy() {
         Log.e("zz_pp", "onDestroy()");
         releaseSoundPool();
-        if (mReader != null) {
-            mReader.free();
+        if (mReader != null && !isEmulatorMode) {
+            try {
+                RFIDWithUHFUART reader = (RFIDWithUHFUART) mReader;
+                reader.free();
+            } catch (Exception e) {
+                Log.e(TAG, "free reader failed", e);
+            }
         }
         super.onDestroy();
         android.os.Process.killProcess(android.os.Process.myPid());

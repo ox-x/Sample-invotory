@@ -24,6 +24,7 @@ import com.example.uhf.activity.UHFMainActivity;
 import com.example.uhf.filebrowser.FileManagerActivity;
 import com.example.uhf.tools.StringUtils;
 import com.example.uhf.tools.UIHelper;
+import com.rscja.deviceapi.RFIDWithUHFUART;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -161,21 +162,23 @@ public class UHFUpgradeFragment extends KeyDwonFragment {
                 }
             }
             */
+            RFIDWithUHFUART reader = mContext.getReader();
+            if (reader == null) return false;
             if(type ==1){
-                version = mContext.mReader.getVersion();//获取版本号
+                version = reader.getVersion();//获取版本号
             }else {
-                version = mContext.mReader.getHardwareVersion();//获取硬件版本号
+                version = reader.getHardwareVersion();//获取硬件版本号
             }
             publishProgress(  0, 0);
 
             Log.d(TAG, "UHF uhfJump2Boot");
-            if (!mContext.mReader.uhfJump2Boot(type)) {
+            if (!reader.uhfJump2Boot(type)) {
                 Log.d(TAG, "uhfJump2Boot 失败");
                 return false;
             }
             sleep(2000);
             Log.d(TAG, "UHF uhfStartUpdate");
-            if (!mContext.mReader.uhfStartUpdate()) {
+            if (!reader.uhfStartUpdate()) {
                 Log.d(TAG, "uhfStartUpdate 失败");
                 return false;
             }
@@ -192,7 +195,7 @@ public class UHFUpgradeFragment extends KeyDwonFragment {
                     return false;
                 }
 
-                if (mContext.mReader.uhfUpdating(Arrays.copyOfRange(currData, index, index + pakeSize))) {
+                if (reader.uhfUpdating(Arrays.copyOfRange(currData, index, index + pakeSize))) {
                     result = true;
                     publishProgress(index + pakeSize, (int) uFileSize);
                     //sleep(10);
@@ -213,7 +216,7 @@ public class UHFUpgradeFragment extends KeyDwonFragment {
                     stop();
                     return false;
                 }
-                if (mContext.mReader.uhfUpdating(Arrays.copyOfRange(currData, index, index + len))) {
+                if (reader.uhfUpdating(Arrays.copyOfRange(currData, index, index + len))) {
                     result = true;
                     publishProgress((int) uFileSize, (int) uFileSize);
                 } else {
@@ -241,10 +244,11 @@ public class UHFUpgradeFragment extends KeyDwonFragment {
                 tvMsg.setTextColor(Color.GREEN);
             }
             sleep(2000);
+            RFIDWithUHFUART reader = mContext.getReader();
             if(type == 1){
-                tvMsg.setText(tvMsg.getText() + " version=" + mContext.mReader.getVersion());
+                tvMsg.setText(tvMsg.getText() + " version=" + (reader != null ? reader.getVersion() : "N/A"));
             }else{
-                tvMsg.setText(tvMsg.getText() + " version=" + mContext.mReader.getHardwareVersion());
+                tvMsg.setText(tvMsg.getText() + " version=" + (reader != null ? reader.getHardwareVersion() : "N/A"));
             }
 
 
@@ -273,7 +277,8 @@ public class UHFUpgradeFragment extends KeyDwonFragment {
 
         private void stop() {
             Log.d(TAG, "UHF uhfStopUpdate");
-            if (!mContext.mReader.uhfStopUpdate())
+            RFIDWithUHFUART reader = mContext.getReader();
+            if (reader != null && !reader.uhfStopUpdate())
                 Log.d(TAG, "uhfStopUpdate 失败");
             sleep(2000);
         }

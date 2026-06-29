@@ -23,6 +23,7 @@ import android.widget.Spinner;
 
 import com.example.uhf.R;
 import com.example.uhf.activity.UHFMainActivity;
+import com.example.uhf.tools.UHFConstants;
 import com.example.uhf.tools.UIHelper;
 
 import com.rscja.deviceapi.RFIDWithUHFUART;
@@ -347,23 +348,29 @@ public class UHFLockFragment extends KeyDwonFragment implements OnClickListener 
                 }
                 int filterPtr = Integer.parseInt(etPtr_filter_lock.getText().toString());
                 int filterCnt = Integer.parseInt(etLen_filter_lock.getText().toString());
-                int filterBank = RFIDWithUHFUART.Bank_EPC;
+                int filterBank = UHFConstants.BANK_EPC;
                 if (rbEPC_filter_lock.isChecked()) {
-                    filterBank = RFIDWithUHFUART.Bank_EPC;
+                    filterBank = UHFConstants.BANK_EPC;
                 } else if (rbTID_filter_lock.isChecked()) {
-                    filterBank = RFIDWithUHFUART.Bank_TID;
+                    filterBank = UHFConstants.BANK_TID;
                 } else if (rbUser_filter_lock.isChecked()) {
-                    filterBank = RFIDWithUHFUART.Bank_USER;
+                    filterBank = UHFConstants.BANK_USER;
                 }
 
-                result = mContext.mReader.lockMem(strPWD,
-                        filterBank,
-                        filterPtr,
-                        filterCnt,
-                        filterData,
-                        strLockCode);
+                RFIDWithUHFUART reader = mContext.getReader();
+                if (reader != null) {
+                    result = reader.lockMem(strPWD,
+                            filterBank,
+                            filterPtr,
+                            filterCnt,
+                            filterData,
+                            strLockCode);
+                }
             } else {
-                result = mContext.mReader.lockMem(strPWD, strLockCode);
+                RFIDWithUHFUART reader2 = mContext.getReader();
+                if (reader2 != null) {
+                    result = reader2.lockMem(strPWD, strLockCode);
+                }
             }
             if (result) {
                 UIHelper.ToastMessage(mContext, R.string.rfid_mgs_lock_succ);

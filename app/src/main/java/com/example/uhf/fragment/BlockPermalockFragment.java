@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.example.uhf.R;
 import com.example.uhf.activity.UHFMainActivity;
+import com.example.uhf.tools.UHFConstants;
 import com.example.uhf.tools.UIHelper;
 import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.utility.StringUtility;
@@ -180,9 +181,9 @@ public class BlockPermalockFragment extends KeyDwonFragment implements View.OnCl
           int filter_ptr=0;
           int filter_len=0;
           String filter_data="00";
-          int filter_bank= RFIDWithUHFUART.Bank_EPC;
+          int filter_bank= UHFConstants.BANK_EPC;
           int readLock= SpinnerReadLock.getSelectedItemPosition();
-          int bank=RFIDWithUHFUART.Bank_EPC;
+          int bank=UHFConstants.BANK_EPC;
 
           if(cb_filter.isChecked()){
               if(etPtr_filter.getText().toString()==null || etPtr_filter.getText().toString().isEmpty()){
@@ -205,9 +206,9 @@ public class BlockPermalockFragment extends KeyDwonFragment implements View.OnCl
               filter_len=Integer.parseInt(etLen_filter.getText().toString());
               filter_data=etData_filter.getText().toString();
               if(rbTID_filter.isChecked())
-                  filter_bank=RFIDWithUHFUART.Bank_TID;
+                  filter_bank=UHFConstants.BANK_TID;
               if(rbUser_filter.isChecked())
-                  filter_bank=RFIDWithUHFUART.Bank_USER;
+                  filter_bank=UHFConstants.BANK_USER;
           }
          if (!TextUtils.isEmpty(pwdStr)) {
             if (pwdStr.length() != 8) {
@@ -222,11 +223,11 @@ public class BlockPermalockFragment extends KeyDwonFragment implements View.OnCl
          }
 
         if(SpinnerBank.getSelectedItemPosition()==1){
-            bank=RFIDWithUHFUART.Bank_EPC;
+            bank=UHFConstants.BANK_EPC;
         }else if(SpinnerBank.getSelectedItemPosition()==2){
-            bank=RFIDWithUHFUART.Bank_TID;
+            bank=UHFConstants.BANK_TID;
         }else{
-            bank=RFIDWithUHFUART.Bank_USER;
+            bank=UHFConstants.BANK_USER;
         }
 
         if (EtPtr.getText().toString().equals("")) {
@@ -237,7 +238,8 @@ public class BlockPermalockFragment extends KeyDwonFragment implements View.OnCl
         int uRange = Integer.parseInt(EtRange.getText().toString());
         byte[] mastBuff= StringUtility.hexString2Bytes(getMastBuff());
 
-        boolean result=mContext.mReader.uhfBlockPermalock(pwdStr,filter_bank,filter_ptr,filter_len,filter_data,readLock,bank,prt,uRange,mastBuff);
+        RFIDWithUHFUART reader = mContext.getReader();
+        boolean result = reader != null && reader.uhfBlockPermalock(pwdStr,filter_bank,filter_ptr,filter_len,filter_data,readLock,bank,prt,uRange,mastBuff);
         if(!result){
             UIHelper.ToastMessage(mContext, "fail");
             mContext.playSound(2);

@@ -16,9 +16,9 @@ import androidx.fragment.app.Fragment;
 
 import com.example.uhf.R;
 import com.example.uhf.activity.UHFMainActivity;
+import com.example.uhf.tools.UHFConstants;
 import com.example.uhf.tools.UIHelper;
 import com.rscja.deviceapi.RFIDWithUHFUART;
-import com.rscja.deviceapi.interfaces.IUHF;
 
 public class UHFLightFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "UHFLightFragment";
@@ -159,23 +159,29 @@ public class UHFLightFragment extends Fragment implements View.OnClickListener {
             int filterPtr = Integer.parseInt(etPtr_light_filter.getText().toString());
             String filterData = etData_light_filter.getText().toString();
             int filterCnt = Integer.parseInt(etLen_light_filter.getText().toString());
-            int filterBank = RFIDWithUHFUART.Bank_EPC;
+            int filterBank = UHFConstants.BANK_EPC;
             if (rbEPC_light_filter.isChecked()) {
-                filterBank = RFIDWithUHFUART.Bank_EPC;
+                filterBank = UHFConstants.BANK_EPC;
             } else if (rbTID_light_filter.isChecked()) {
-                filterBank = RFIDWithUHFUART.Bank_TID;
+                filterBank = UHFConstants.BANK_TID;
             } else if (rbUser_light_filter.isChecked()) {
-                filterBank = RFIDWithUHFUART.Bank_USER;
+                filterBank = UHFConstants.BANK_USER;
             }
-            mContext.mReader.readData("00000000",
-                    filterBank,
-                    filterPtr,
-                    filterCnt,
-                    filterData,
-                    IUHF.Bank_RESERVED, 4, 1
-            );
+            RFIDWithUHFUART reader = mContext.getReader();
+            if (reader != null) {
+                reader.readData("00000000",
+                        filterBank,
+                        filterPtr,
+                        filterCnt,
+                        filterData,
+                        UHFConstants.BANK_RESERVED, 4, 1
+                );
+            }
         } else {
-            mContext.mReader.readData("00000000", IUHF.Bank_RESERVED, 4, 1);
+            RFIDWithUHFUART reader = mContext.getReader();
+            if (reader != null) {
+                reader.readData("00000000", UHFConstants.BANK_RESERVED, 4, 1);
+            }
         }
     }
 

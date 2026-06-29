@@ -30,6 +30,7 @@ import com.example.uhf.activity.UHFMainActivity;
 import com.example.uhf.db.BoxInfo;
 import com.example.uhf.db.ContentInfo;
 import com.example.uhf.db.DatabaseHelper;
+import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.deviceapi.entity.UHFTAGInfo;
 
 import java.io.File;
@@ -150,7 +151,8 @@ public class KittingFragment extends KeyDwonFragment {
     }
 
     private void scanBoxTag() {
-        UHFTAGInfo tag = mContext.mReader.inventorySingleTag();
+        RFIDWithUHFUART reader = mContext.getReader();
+        UHFTAGInfo tag = reader != null ? reader.inventorySingleTag() : null;
         if (tag != null) {
             String tid = getTagId(tag);
             etBoxEpc.setText(tid);
@@ -174,7 +176,8 @@ public class KittingFragment extends KeyDwonFragment {
     }
 
     private void scanContentTag() {
-        UHFTAGInfo tag = mContext.mReader.inventorySingleTag();
+        RFIDWithUHFUART reader = mContext.getReader();
+        UHFTAGInfo tag = reader != null ? reader.inventorySingleTag() : null;
         if (tag != null) {
             etContentEpc.setText(getTagId(tag));
             mContext.playSound(1);
@@ -378,7 +381,8 @@ public class KittingFragment extends KeyDwonFragment {
     @Override
     public void myOnKeyDwon() {
         // Hardware scan button: scan into box if empty, else scan into content
-        UHFTAGInfo tag = mContext.mReader.inventorySingleTag();
+        RFIDWithUHFUART reader = mContext.getReader();
+        UHFTAGInfo tag = reader != null ? reader.inventorySingleTag() : null;
         if (tag != null) {
             mContext.playSound(1);
             String tid = getTagId(tag);

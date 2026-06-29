@@ -11,9 +11,11 @@ import android.widget.SeekBar;
 
 import com.example.uhf.R;
 import com.example.uhf.activity.UHFMainActivity;
+import com.example.uhf.tools.UHFConstants;
 import com.example.uhf.tools.UIHelper;
 import com.example.uhf.view.CircleSeekBar;
 import com.example.uhf.view.UhfLocationCanvasView;
+import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.deviceapi.entity.UHFTAGInfo;
 import com.rscja.deviceapi.interfaces.IUHF;
 import com.rscja.deviceapi.interfaces.IUHFLocationCallback;
@@ -69,7 +71,8 @@ public class UHFLocationFragment extends KeyDwonFragment {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 int p = 35 - progress;
-                mContext.mReader.setDynamicDistance(p);
+                RFIDWithUHFUART reader = mContext.getReader();
+                if (reader != null) reader.setDynamicDistance(p);
                 Log.d(TAG, "  onStopTrackingTouch  p=" + p + "  progress=" + progress);
                 //  Toast.makeText(getContext(),"功率："+progress,Toast.LENGTH_SHORT).show();
             }
@@ -133,7 +136,8 @@ public class UHFLocationFragment extends KeyDwonFragment {
             UIHelper.ToastMessage(mContext, R.string.location_fail);
             return;
         }
-        boolean result = mContext.mReader.startLocation(mContext, epc, IUHF.Bank_TID, 0, new IUHFLocationCallback() {
+        RFIDWithUHFUART reader = mContext.getReader();
+        boolean result = reader != null && reader.startLocation(mContext, epc, UHFConstants.BANK_TID, 0, new IUHFLocationCallback() {
             @Override
             public void getLocationValue(int value, boolean valid) {
                 llChart.setData(value);
@@ -154,7 +158,8 @@ public class UHFLocationFragment extends KeyDwonFragment {
     }
 
     public void stopLocation() {
-        mContext.mReader.stopLocation();
+        RFIDWithUHFUART reader = mContext.getReader();
+        if (reader != null) reader.stopLocation();
         btStart.setEnabled(true);
         etEPC.setEnabled(true);
         seekBarPower.setEnabled(false);

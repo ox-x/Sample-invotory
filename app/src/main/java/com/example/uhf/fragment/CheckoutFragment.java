@@ -27,6 +27,8 @@ import com.example.uhf.db.DisplayItem;
 import com.example.uhf.db.StockInInfo;
 import com.example.uhf.tools.ExcelUtils;
 import com.example.uhf.tools.StringUtils;
+import com.example.uhf.tools.UHFConstants;
+import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.deviceapi.entity.InventoryParameter;
 import com.rscja.deviceapi.entity.UHFTAGInfo;
 import com.rscja.deviceapi.interfaces.IUHFInventoryCallback;
@@ -119,7 +121,8 @@ public class CheckoutFragment extends KeyDwonFragment {
     public void onResume() {
         super.onResume();
         // Refresh current power level only, do NOT reload data to preserve state
-        int power = mContext.mReader.getPower();
+        RFIDWithUHFUART reader = mContext.getReader();
+        int power = reader != null ? reader.getPower() : -1;
         if (power > 0 && power <= 30) {
             seekBarPower.setProgress(power - 1);
             tvPower.setText(getString(R.string.power_label, power));
@@ -130,7 +133,8 @@ public class CheckoutFragment extends KeyDwonFragment {
      * Initialize power SeekBar with current power and set change listener.
      */
     private void initPowerSeekBar() {
-        int power = mContext.mReader.getPower();
+        RFIDWithUHFUART reader2 = mContext.getReader();
+        int power = reader2 != null ? reader2.getPower() : -1;
         if (power > 0 && power <= 30) {
             seekBarPower.setProgress(power - 1);
             tvPower.setText(getString(R.string.power_label, power));
@@ -149,7 +153,8 @@ public class CheckoutFragment extends KeyDwonFragment {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 int powerValue = seekBar.getProgress() + 1;
-                if (mContext.mReader.setPower(powerValue)) {
+                RFIDWithUHFUART reader = mContext.getReader();
+                if (reader != null && reader.setPower(powerValue)) {
                     android.util.Log.d(TAG, "Power set to " + powerValue + " dBm");
                 } else {
                     android.util.Log.e(TAG, "Failed to set power to " + powerValue);
@@ -249,7 +254,8 @@ public class CheckoutFragment extends KeyDwonFragment {
 
     private void doSingleScan() {
         if (confirmedStudentId.isEmpty()) { mContext.showToast(R.string.br_no_student); return; }
-        UHFTAGInfo tag = mContext.mReader.inventorySingleTag();
+        RFIDWithUHFUART reader = mContext.getReader();
+        UHFTAGInfo tag = reader != null ? reader.inventorySingleTag() : null;
         if (tag != null) {
             String tid = getTagId(tag);
             if (!TextUtils.isEmpty(tid)) {
@@ -265,13 +271,18 @@ public class CheckoutFragment extends KeyDwonFragment {
 
     private void startContinuousScan() {
         if (confirmedStudentId.isEmpty()) { mContext.showToast(R.string.br_no_student); return; }
-        mContext.mReader.setInventoryCallback(uhftagInfo -> {
+        RFIDWithUHFUART reader = mContext.getReader();
+        if (reader == null) {
+            mContext.showToast(R.string.uhf_msg_inventory_fail);
+            return;
+        }
+        reader.setInventoryCallback(uhftagInfo -> {
             Message msg = handler.obtainMessage();
             msg.obj = uhftagInfo; msg.what = 1;
             handler.sendMessage(msg);
         });
         InventoryParameter param = new InventoryParameter();
-        if (mContext.mReader.startInventoryTag(param)) {
+        if (reader.startInventoryTag(param)) {
             isScanning = true;
             btnContinuousScan.setEnabled(false);
             btnStopScan.setEnabled(true);
@@ -285,8 +296,9 @@ public class CheckoutFragment extends KeyDwonFragment {
 
     private void stopContinuousScan() {
         if (isScanning) {
-            mContext.mReader.stopInventory();
-            mContext.mReader.setInventoryCallback(null);
+            RFIDWithUHFUART reader = mContext.getReader();
+            if (reader != null) reader.stopInventory();
+            if (reader != null) reader.setInventoryCallback(null);
             isScanning = false;
             mContext.loopFlag = false;
             btnContinuousScan.setEnabled(true);

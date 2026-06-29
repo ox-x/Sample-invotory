@@ -7,6 +7,7 @@ import com.example.uhf.tools.StringUtils;
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.lidroid.xutils.view.annotation.event.OnClick;
+import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.deviceapi.entity.Gen2Entity;
 import com.rscja.deviceapi.entity.InventoryModeEntity;
 
@@ -188,7 +189,8 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
 
         cbTagFocus.setOnCheckedChangeListener(new OnMyCheckedChangedListener());
         cbFastID.setOnCheckedChangeListener(new OnMyCheckedChangedListener());
-        String ver = mContext.mReader.getVersion();
+        RFIDWithUHFUART initReader = mContext.getReader();
+        String ver = initReader != null ? initReader.getVersion() : "";
         arrPow = R.array.arrayPower;
         ArrayAdapter adapter = ArrayAdapter.createFromResource(mContext, arrPow, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -237,7 +239,8 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
             String strMode = spFrequency.getSelectedItem().toString();
             int mode = getMode(strMode);
             Log.d(TAG, "setFrequencyMode mode=" + mode);
-            if (mContext.mReader.setFrequencyMode((byte) mode)) {
+            RFIDWithUHFUART reader = mContext.getReader();
+            if (reader != null && reader.setFrequencyMode((byte) mode)) {
                 mContext.showToast(R.string.uhf_msg_set_frequency_succ);
             } else {
                 mContext.showToast(R.string.uhf_msg_set_frequency_fail);
@@ -246,7 +249,8 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
     }
 
     public void getFre(boolean showToast) {
-        int mode = mContext.mReader.getFrequencyMode();
+        RFIDWithUHFUART reader = mContext.getReader();
+        int mode = reader != null ? reader.getFrequencyMode() : -1;
         Log.e(TAG, "getFrequencyMode()=" + mode);
         mHandler.post(() -> {
             if (mode != -1) {
@@ -266,7 +270,8 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
      * 获取链路参数
      */
     public void getLinkParams(boolean showToast) {
-        int link = mContext.mReader.getRFLink();
+        RFIDWithUHFUART reader = mContext.getReader();
+        int link = reader != null ? reader.getRFLink() : -1;
         Log.e(TAG, "getLinkParams()=" + link);
 
         mHandler.post(() -> {
@@ -360,9 +365,10 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
 
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            RFIDWithUHFUART reader = mContext.getReader();
             switch (buttonView.getId()) {
                 case R.id.cbTagFocus:
-                    if (mContext.mReader.setTagFocus(isChecked)) {
+                    if (reader != null && reader.setTagFocus(isChecked)) {
                         if (isChecked) {
                             cbTagFocus.setText(R.string.tagFocus_off);
                         } else {
@@ -377,7 +383,7 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
                     }
                     break;
                 case R.id.cbFastID:
-                    if (mContext.mReader.setFastID(isChecked)) {
+                    if (reader != null && reader.setFastID(isChecked)) {
                         if (isChecked) {
                             cbFastID.setText(R.string.fastID_off);
                         } else {
@@ -396,7 +402,8 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
     }
 
     public void getPower(boolean showToast) {
-        int iPower = mContext.mReader.getPower();
+        RFIDWithUHFUART reader = mContext.getReader();
+        int iPower = reader != null ? reader.getPower() : -1;
         Log.i("UHFSetFragment", "OnClick_GetPower() iPower=" + iPower);
         mHandler.post(() -> {
             if (iPower > -1) {
@@ -413,7 +420,8 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
     public void setPower() {
         int iPower = spPower.getSelectedItemPosition() + 1;
         Log.i("UHFSetFragment", "OnClick_SetPower() iPower=" + iPower);
-        if (mContext.mReader.setPower(iPower)) {
+        RFIDWithUHFUART reader = mContext.getReader();
+        if (reader != null && reader.setPower(iPower)) {
             mContext.showToast(R.string.uhf_msg_set_power_succ);
         } else {
             mContext.showToast(R.string.uhf_msg_set_power_fail);
@@ -428,7 +436,8 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
      * @return 是否设置成功
      */
     private boolean setFreHop(float value) {
-        boolean result = mContext.mReader.setFreHop(value);
+        RFIDWithUHFUART reader = mContext.getReader();
+        boolean result = reader != null && reader.setFreHop(value);
         if (result) {
 
             mContext.showToast(
@@ -454,7 +463,8 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
                 }
                 break;
             case R.id.btnSetProtocol: //设置协议
-                if (mContext.mReader.setProtocol(SpinnerAgreement.getSelectedItemPosition())) {
+                RFIDWithUHFUART reader = mContext.getReader();
+                if (reader != null && reader.setProtocol(SpinnerAgreement.getSelectedItemPosition())) {
                     mContext.showToast(R.string.setAgreement_succ);
                 } else {
                     mContext.showToast(R.string.setAgreement_fail);
@@ -464,7 +474,8 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
             case R.id.btnSetLinkParams: //设置链路参数
                 int index = splinkParams.getSelectedItemPosition();
                 int link = arrayLinkValue.get(index);
-                if (mContext.mReader.setRFLink(link)) {
+                RFIDWithUHFUART reader2 = mContext.getReader();
+                if (reader2 != null && reader2.setRFLink(link)) {
                     mContext.showToast(R.string.uhf_msg_set_succ);
                 } else {
                     mContext.showToast(R.string.uhf_msg_set_fail);
@@ -510,7 +521,8 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
     }
 
     private boolean getSession() {
-        Gen2Entity entity = mContext.mReader.getGen2();
+        RFIDWithUHFUART reader = mContext.getReader();
+        Gen2Entity entity = reader != null ? reader.getGen2() : null;
         if (entity != null) {
             mHandler.post(() -> {
                 spSessionID.setSelection(entity.getQuerySession());
@@ -527,11 +539,12 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
         if (seesionid < 0 || inventoried < 0) {
             return;
         }
-        Gen2Entity p = mContext.mReader.getGen2();
+        RFIDWithUHFUART reader = mContext.getReader();
+        Gen2Entity p = reader != null ? reader.getGen2() : null;
         if (p != null) {
             p.setQueryTarget(inventoried);
             p.setQuerySession(seesionid);
-            if (mContext.mReader.setGen2(p)) {
+            if (reader.setGen2(p)) {
                 mContext.showToast(R.string.uhf_msg_set_succ);
             } else {
                 mContext.showToast(R.string.uhf_msg_set_fail);
@@ -636,7 +649,8 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
     }
 
     private void getMomoryBank(boolean isToast) {
-        InventoryModeEntity mode = mContext.mReader.getEPCAndTIDUserMode();
+        RFIDWithUHFUART reader = mContext.getReader();
+        InventoryModeEntity mode = reader != null ? reader.getEPCAndTIDUserMode() : null;
         if (mode == null) {
             if (isToast) mContext.showToast(R.string.get_succ);
             return;
@@ -679,14 +693,15 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
         int position = spMemoryBank.getSelectedItemPosition();
         boolean result = false;
         int offset = 0, length = 6;
+        RFIDWithUHFUART reader = mContext.getReader();
         if (position == 0) {
-            result = mContext.mReader.setEPCMode();
+            result = reader != null && reader.setEPCMode();
         } else if (position == 1) {
-            result = mContext.mReader.setEPCAndTIDMode();
+            result = reader != null && reader.setEPCAndTIDMode();
         } else if (position == 2) {
             offset = StringUtils.toInt(etOffset.getText().toString().trim(), 0);
             length = StringUtils.toInt(etLength.getText().toString().trim(), 6);
-            result = mContext.mReader.setEPCAndTIDUserMode(offset, length);
+            result = reader != null && reader.setEPCAndTIDUserMode(offset, length);
         } else if (position == 3) {
             offset = StringUtils.toInt(etOffset.getText().toString().trim(), 0);
             length = StringUtils.toInt(etLength.getText().toString().trim(), 4);
@@ -696,13 +711,13 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
                     .setReservedOffset(offset)
                     .setReservedLength(length)
                     .build();
-            result = mContext.mReader.setEPCAndTIDUserMode(entity);
+            result = reader != null && reader.setEPCAndTIDUserMode(entity);
         } else if (position == 4) {
             InventoryModeEntity entity = new InventoryModeEntity
                     .Builder()
                     .setMode(InventoryModeEntity.MODE_LED_TAG)
                     .build();
-            result = mContext.mReader.setEPCAndTIDUserMode(entity);
+            result = reader != null && reader.setEPCAndTIDUserMode(entity);
         }
 
         mContext.showToast(result ? R.string.setting_succ : R.string.setting_fail);
@@ -710,7 +725,8 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
 
 
     private boolean getFastInventory() {
-        final int result = mContext.mReader.getFastInventoryMode();
+        RFIDWithUHFUART reader = mContext.getReader();
+        final int result = reader != null ? reader.getFastInventoryMode() : -1;
         Log.e("TAG", "getFastInventory: " + result);
         if (result >= 0) {
             mContext.runOnUiThread(() -> {
@@ -731,14 +747,16 @@ public class UHFSetFragment extends KeyDwonFragment implements OnClickListener {
         if (!rbFastInventoryOpen.isChecked() && !rbFastInventoryClose.isChecked()) {
             return;
         }
-        boolean result = mContext.mReader.setFastInventoryMode(rbFastInventoryOpen.isChecked());
+        RFIDWithUHFUART reader = mContext.getReader();
+        boolean result = reader != null && reader.setFastInventoryMode(rbFastInventoryOpen.isChecked());
         mContext.showToast(result ? R.string.setting_succ : R.string.setting_fail);
     }
 
 
     @OnClick(R.id.btnFactoryReset)
     public void btnFactoryResetClick(View view) {
-        if (mContext.mReader.factoryReset()) {
+        RFIDWithUHFUART reader = mContext.getReader();
+        if (reader != null && reader.factoryReset()) {
             mContext.showToast(R.string.reset_succ);
             new Thread(() -> {
                 getFre(false);
