@@ -54,7 +54,7 @@ android {
         // 自定义apk名称
         android.applicationVariants.all { variant ->
             variant.outputs.all {
-                outputFileName = "简库_v${defaultConfig.versionName}.apk"
+                outputFileName = "Sample-invotory-${defaultConfig.versionName}.apk"
                 // 例如：简库_v1.0.0.apk
             }
         }
