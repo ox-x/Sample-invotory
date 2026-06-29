@@ -84,7 +84,6 @@ app/src/main/java/com/example/uhf/
 |:---:|:---:|:---:|
 | ![Dashboard](screenshots/dashboard.png) | ![Checkout](screenshots/checkout.png) | ![Warehouse](screenshots/warehouse.png) |
 
-> 截图目录 `screenshots/` 请自行添加。
 
 ## 许可证
 
