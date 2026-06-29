@@ -54,29 +54,6 @@ app/src/main/java/com/example/uhf/
 └── widget/             # 自定义 ViewPager
 ```
 
-## 快速开始
-
-1. 克隆仓库
-   ```bash
-   git clone https://github.com/ox-x/Sample-invotory.git
-   ```
-
-2. 用 Android Studio 打开项目
-
-3. 连接 UHF RFID 硬件设备或在模拟器中运行（仅调试 UI）
-
-4. 构建并运行
-   ```bash
-   ./gradlew assembleDebug
-   ```
-   APK 生成位置: `app/build/outputs/apk/debug/简库_v1.4.0.apk`
-
-## 版本管理
-
-版本号格式：`主版本.次版本.修订号`
-
-- `versionCode` = 主版本 × 100000 + 次版本 × 1000 + 修订号
-- 修改 `app/build.gradle` 中的 `versionMajor` / `versionMinor` / `versionPatch` 即可自动更新
 
 ## 截图
 
