@@ -35,7 +35,7 @@ public class LogViewerFragment extends KeyDwonFragment {
     private TextView tvHint, tvWirelessStatus;
     private LogAdapter adapter;
     private OperationLogManager logManager;
-    private WirelessLogServer wirelessServer;
+    private static WirelessLogServer wirelessServer;
     private Button btnWireless;
 
     // 自动刷新
@@ -86,6 +86,11 @@ public class LogViewerFragment extends KeyDwonFragment {
                 }
             }
         });
+
+        // 检查无线服务器是否已在运行（跨 Fragment 重建保持）
+        if (wirelessServer != null && wirelessServer.isRunning()) {
+            showServerRunning();
+        }
 
         refreshLogs();
         // 启动自动刷新（每2秒刷新一次，确保新日志实时显示）
@@ -194,10 +199,8 @@ public class LogViewerFragment extends KeyDwonFragment {
     public void onDestroy() {
         super.onDestroy();
         autoRefreshHandler.removeCallbacks(autoRefreshTask);
-        if (wirelessServer != null) {
-            wirelessServer.stop();
-            wirelessServer = null;
-        }
+        // 不停止无线服务器，让其在后台继续运行
+        // 服务器将在应用完全退出时随进程终止
     }
 
     @Override
@@ -246,8 +249,8 @@ public class LogViewerFragment extends KeyDwonFragment {
 
         private int getTypeColor(String type) {
             if (type == null) return 0xFF757575;
-            if (type.contains("借出") || type.contains("Borrow")) return 0xFF43A047;
-            if (type.contains("归还") || type.contains("Return")) return 0xFFFB8C00;
+            if (type.contains("借出") || type.contains("Borrow")) return 0xFFFB8C00;
+            if (type.contains("归还") || type.contains("Return")) return 0xFF43A047;
             if (type.contains("入库") || type.contains("StockIn")) return 0xFF1E88E5;
             if (type.contains("Kitting")) return 0xFF8E24AA;
             if (type.contains("查询") || type.contains("Search")) return 0xFF546E7A;
