@@ -27,6 +27,7 @@ import com.example.uhf.db.DatabaseHelper;
 import com.example.uhf.db.DisplayItem;
 import com.example.uhf.db.StockInInfo;
 import com.example.uhf.tools.ExcelUtils;
+import com.example.uhf.tools.OperationLogManager;
 import com.example.uhf.tools.StringUtils;
 import com.example.uhf.tools.UHFConstants;
 import com.rscja.deviceapi.RFIDWithUHFUART;
@@ -722,6 +723,12 @@ public class CheckoutFragment extends KeyDwonFragment {
         dbHelper.insertCheckoutLog(confirmedStudentId, item.epc, item.name, action, itemType, parentBox);
         item.borrowStatus = "BORROW".equals(action) ? "BORROWED" : "IN_STOCK";
         item.audited = false;
+
+        // 记录操作日志
+        String actionLabel = "BORROW".equals(action) ? "借出" : "归还";
+        String logName = item.name != null && !item.name.isEmpty() ? item.name : item.epc;
+        OperationLogManager.getInstance().log(actionLabel,
+                logName + " | 操作人: " + confirmedStudentId);
     }
 
     // ==================== Export ====================

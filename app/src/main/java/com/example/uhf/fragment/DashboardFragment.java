@@ -42,6 +42,13 @@ public class DashboardFragment extends KeyDwonFragment {
         setupCard(view, R.id.btnStockIn, StockInFragment.class, true);
         setupCard(view, R.id.btnWarehouse, WarehouseFragment.class, false);
         setupCard(view, R.id.btnAdvanced, AdvancedFragment.class, true);
+
+        // 操作日志（无需密码）
+        View btnLogs = view.findViewById(R.id.btnLogs);
+        if (btnLogs != null) {
+            btnLogs.setOnClickListener(v ->
+                    mContext.openFeature(LogViewerFragment.class, "操作日志"));
+        }
     }
 
     private void setupCard(View parent, int cardId, final Class<?> fragmentClass, final boolean requiresPassword) {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Sample Inventory</string>
+    <string name="app_name">Simple Invotry</string>
     <string name="dashboard_title">UHF RFID Tools</string>
     <string name="dashboard_subtitle">Select a function to continue</string>
     <string name="action_settings">Settings</string>

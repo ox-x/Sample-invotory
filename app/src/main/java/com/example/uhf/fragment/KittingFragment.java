@@ -30,6 +30,7 @@ import com.example.uhf.activity.UHFMainActivity;
 import com.example.uhf.db.BoxInfo;
 import com.example.uhf.db.ContentInfo;
 import com.example.uhf.db.DatabaseHelper;
+import com.example.uhf.tools.OperationLogManager;
 import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.deviceapi.entity.UHFTAGInfo;
 
@@ -199,6 +200,8 @@ public class KittingFragment extends KeyDwonFragment {
         if (result != -1) {
             mContext.showToast(getString(R.string.kitting_box_assigned, shortId.isEmpty() ? epc : shortId));
             loadContentsForBox(epc);
+            OperationLogManager.getInstance().log("Kitting",
+                    "分配Box - TID:" + epc + " 简称:" + shortId + " 描述:" + description);
         } else {
             mContext.showToast(R.string.kitting_saved_fail);
         }
@@ -245,6 +248,9 @@ public class KittingFragment extends KeyDwonFragment {
             ivContentPhoto.setVisibility(View.GONE);
             // Reload list
             loadContentsForBox(boxEpc);
+            OperationLogManager.getInstance().log("Kitting",
+                    "添加Content到Box - ContentTID:" + contentEpc + " BoxTID:" + boxEpc
+                            + " 简称:" + shortId + " 描述:" + description);
         } else {
             mContext.showToast(R.string.kitting_saved_fail);
         }

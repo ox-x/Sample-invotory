@@ -42,6 +42,7 @@ import com.example.uhf.db.ContentInfo;
 import com.example.uhf.db.DatabaseHelper;
 import com.example.uhf.db.DisplayItem;
 import com.example.uhf.db.StockInInfo;
+import com.example.uhf.tools.OperationLogManager;
 import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.deviceapi.entity.UHFTAGInfo;
 
@@ -441,6 +442,8 @@ public class StockInFragment extends KeyDwonFragment {
             clearFields();
             loadBoxList();
             loadHistory();
+            OperationLogManager.getInstance().log("入库",
+                    "注册为Box - TID:" + epc + " 简称:" + shortId + " 描述:" + desc);
         } else {
             mContext.showToast(R.string.stockin_register_fail);
         }
@@ -478,6 +481,8 @@ public class StockInFragment extends KeyDwonFragment {
             mContext.showToast(R.string.stockin_registered);
             clearFields();
             loadHistory();
+            OperationLogManager.getInstance().log("入库",
+                    "注册为Content - TID:" + epc + " 简称:" + shortId + " 归属Box:" + selectedBoxEpc);
         } else {
             mContext.showToast(R.string.stockin_register_fail);
         }
@@ -503,6 +508,8 @@ public class StockInFragment extends KeyDwonFragment {
             mContext.showToast(R.string.stockin_registered);
             clearFields();
             loadHistory();
+            OperationLogManager.getInstance().log("入库",
+                    "注册为Standalone - TID:" + epc + " 简称:" + shortId + " 描述:" + desc);
         } else {
             mContext.showToast(R.string.stockin_register_fail);
         }

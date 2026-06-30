@@ -115,12 +115,14 @@
     <color name="module_stockin">#5A8B5C</color>
     <color name="module_warehouse">#7A5B94</color>
     <color name="module_advanced">#4A5A63</color>
+    <color name="module_logs">#00897B</color>
 
     <!-- 模块主色（浅色背景版） -->
     <color name="module_checkout_light">#FFF3E0</color>
     <color name="module_stockin_light">#E8F5E9</color>
     <color name="module_warehouse_light">#F3E5F5</color>
     <color name="module_advanced_light">#ECEFF1</color>
+    <color name="module_logs_light">#E0F2F1</color>
 
     <!-- 库存模块按钮色 -->
     <color name="stockin_btn">#4A7C4C</color>
